@@ -15,7 +15,7 @@ timezone:
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: https://wjsummer.top
 root: /
-permalink: :title/
+permalink: category/:title/
 permalink_defaults:
 
 # Directory
@@ -83,6 +83,7 @@ deploy:
   branch: master
 
 #live2d
+## Docs: https://github.com/EYHN/hexo-helper-live2d/blob/master/README.zh-CN.md
 live2d:
   enable: true
   scriptFrom: local
@@ -95,7 +96,29 @@ live2d:
     use: live2d-widget-model-hijiki
   display:
     position: right
-    width: 150
-    height: 300
+    width: 250
+    height: 415
   mobile:
     show: true
+  react:
+    opacityDefault: 0.7
+    opacityOnHover: 0.2
+
+
+#admin
+admin:
+  username: w467364316
+  password: 9223294741
+  deployCommand: './admin_script/hexo-admin-exploy.sh'
+
+#symbols_count_time
+symbols_count_time:
+  symbols: true
+  time: true
+  total_symbols: true
+  total_time: true
+
+
+# Extensions
+plugins:
+    hexo-generator-feed
