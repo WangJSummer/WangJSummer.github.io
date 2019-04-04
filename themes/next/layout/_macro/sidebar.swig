@@ -34,7 +34,7 @@
               <p class="site-author-name" itemprop="name">{{ author }}</p>
               <div class="site-description motion-element" itemprop="description">{{ description }}</div>
           </div>
-
+          
           {% if theme.site_state %}
             <nav class="site-state motion-element">
               {% if config.archive_dir != '/' and site.posts.length > 0 %}
