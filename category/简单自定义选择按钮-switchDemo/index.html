@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="虽然系统的UISwitch效果已经很好了,附带的动画效果也是很好的,但是在实际开发中UI和程序员对头(产品经理)经常会要求按照项目的整体效果使用其他的图片或者背景来代替,这里仅在项目中做了一个简单的自定义switch. #####demo图样 主要是使用自定义UIView,利用背景图片的切换,和按钮图片的x的位置开实现. 这里把demo放上,方便以后查看 : demo地址WJSwitch.h123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单自定义选择按钮(switchDemo)">
+<meta property="og:url" content="https://wjsummer.top/category/简单自定义选择按钮-switchDemo/index.html">
+<meta property="og:site_name" content="MrSummerの小窝">
+<meta property="og:description" content="虽然系统的UISwitch效果已经很好了,附带的动画效果也是很好的,但是在实际开发中UI和程序员对头(产品经理)经常会要求按照项目的整体效果使用其他的图片或者背景来代替,这里仅在项目中做了一个简单的自定义switch. #####demo图样 主要是使用自定义UIView,利用背景图片的切换,和按钮图片的x的位置开实现. 这里把demo放上,方便以后查看 : demo地址WJSwitch.h123">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-95c34978f9e5af4e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-04-04T08:41:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简单自定义选择按钮(switchDemo)">
+<meta name="twitter:description" content="虽然系统的UISwitch效果已经很好了,附带的动画效果也是很好的,但是在实际开发中UI和程序员对头(产品经理)经常会要求按照项目的整体效果使用其他的图片或者背景来代替,这里仅在项目中做了一个简单的自定义switch. #####demo图样 主要是使用自定义UIView,利用背景图片的切换,和按钮图片的x的位置开实现. 这里把demo放上,方便以后查看 : demo地址WJSwitch.h123">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2203462-95c34978f9e5af4e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="MrSummerの小窝" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://wjsummer.top/category/简单自定义选择按钮-switchDemo/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>简单自定义选择按钮(switchDemo) | MrSummerの小窝</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MrSummerの小窝</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://wjsummer.top/category/简单自定义选择按钮-switchDemo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jian Wang">
+      <meta itemprop="description" content="IT iOS 前端 nodejs">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MrSummerの小窝">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">简单自定义选择按钮(switchDemo)
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-04 16:41:23 / 修改时间：16:41:25" itemprop="dateCreated datePublished" datetime="2019-04-04T16:41:23+08:00">2019-04-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">4.9k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">4 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>虽然系统的UISwitch效果已经很好了,附带的动画效果也是很好的,但是在实际开发中UI和程序员对头(产品经理)经常会要求按照项目的整体效果使用其他的图片或者背景来代替,这里仅在项目中做了一个简单的自定义switch.</p>
+<p>#####demo图样<br><img src="http://upload-images.jianshu.io/upload_images/2203462-95c34978f9e5af4e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="switchDemo.png"></p>
+<p>主要是使用自定义UIView,利用背景图片的切换,和按钮图片的x的位置开实现.</p>
+<p>这里把demo放上,方便以后查看 : <a href="https://github.com/w467364316/WJSwitchButton.git" target="_blank" rel="noopener">demo地址</a><br>WJSwitch.h<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;UIKit/UIKit.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">WJSwitchViewDelegate</span> &lt;<span class="title">NSObject</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  开关是否开启</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  @param isopen YES 开启  NO 关闭</span></span><br><span class="line"><span class="comment"> *  @param tag   tag值</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">-(<span class="keyword">void</span>)WJSwitchViewDelegateWithSwitchStates:(<span class="built_in">BOOL</span>)isopen withTag:(<span class="built_in">NSInteger</span>)tag;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">WJSwitchView</span> : <span class="title">UIView</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">weak</span>) <span class="keyword">id</span> &lt;WJSwitchViewDelegate&gt; delegate;<span class="comment">//代理</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-(<span class="keyword">instancetype</span>)initWithFrame:(<span class="built_in">CGRect</span>)frame withTag:(<span class="built_in">NSInteger</span>)tag delegate:(<span class="keyword">id</span>)delegate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure></p>
+<p>WJSwitch.m<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">"WJSwitchView.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">WJSwitchView</span> ()</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">BOOL</span> isOpen;<span class="comment">//是否开启(右边为开启)</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIImageView</span>  * bgView;<span class="comment">//背景图片</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIImageView</span>  * btnView;<span class="comment">//按钮图片</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">assign</span>) <span class="built_in">CGFloat</span> beginpoint;<span class="comment">//开始的位置</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">WJSwitchView</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-(<span class="keyword">instancetype</span>)initWithFrame:(<span class="built_in">CGRect</span>)frame withTag:(<span class="built_in">NSInteger</span>)tag delegate:(<span class="keyword">id</span>)delegate&#123;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span> = [<span class="keyword">super</span> initWithFrame:frame]) &#123;</span><br><span class="line">        </span><br><span class="line">        [<span class="keyword">self</span> setFrame:frame];</span><br><span class="line">        [<span class="keyword">self</span> setBtnImageView];</span><br><span class="line">        <span class="keyword">self</span>.tag = tag;</span><br><span class="line">        <span class="keyword">self</span>.delegate = delegate;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  设置按钮背景图片</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">-(<span class="keyword">void</span>)setBtnImageView&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//设置背景图片</span></span><br><span class="line">    <span class="keyword">self</span>.bgView = [[<span class="built_in">UIImageView</span> alloc] initWithFrame:<span class="keyword">self</span>.bounds];</span><br><span class="line">    [<span class="keyword">self</span>.bgView setImage:[<span class="built_in">UIImage</span> imageNamed:<span class="string">@"bgViewOff"</span>]];</span><br><span class="line">    [<span class="keyword">self</span> addSubview:<span class="keyword">self</span>.bgView];</span><br><span class="line">    </span><br><span class="line">    isOpen = <span class="literal">NO</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//设置按钮图片</span></span><br><span class="line">    <span class="keyword">self</span>.btnView = [[<span class="built_in">UIImageView</span> alloc] initWithFrame:<span class="built_in">CGRectMake</span>(<span class="number">2</span>, <span class="number">2</span>, <span class="built_in">CGRectGetWidth</span>(<span class="keyword">self</span>.frame)/<span class="number">2</span>, <span class="built_in">CGRectGetHeight</span>(<span class="keyword">self</span>.frame)<span class="number">-4</span>)];</span><br><span class="line">    [<span class="keyword">self</span>.btnView setImage:[<span class="built_in">UIImage</span> imageNamed:<span class="string">@"switchBtn"</span>]];</span><br><span class="line">    [<span class="keyword">self</span> addSubview:<span class="keyword">self</span>.btnView];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>触摸方法<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="keyword">void</span>)touchesBegan:(<span class="built_in">NSSet</span>&lt;<span class="built_in">UITouch</span> *&gt; *)touches withEvent:(<span class="built_in">UIEvent</span> *)event&#123;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//    UITouch * touch = [touches anyObject];</span></span><br><span class="line">    <span class="comment">//    self.beginpoint = [touch locationInView:self].x;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!isOpen) &#123;</span><br><span class="line">        [<span class="keyword">self</span> switchOpen];</span><br><span class="line">        isOpen = <span class="literal">YES</span>;</span><br><span class="line">  </span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        </span><br><span class="line">        [<span class="keyword">self</span> switchClose];</span><br><span class="line">        isOpen = <span class="literal">NO</span>;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//实现协议方法 传递按钮tag和是否开启</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.delegate  &amp;&amp; [<span class="keyword">self</span>.delegate respondsToSelector:<span class="keyword">@selector</span>(WJSwitchViewDelegateWithSwitchStates: withTag:)]) &#123;</span><br><span class="line">        [<span class="keyword">self</span>.delegate WJSwitchViewDelegateWithSwitchStates:isOpen withTag:<span class="keyword">self</span>.tag];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  开启</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">-(<span class="keyword">void</span>)switchOpen&#123;</span><br><span class="line">    </span><br><span class="line">    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(<span class="number">0.005</span> * <span class="built_in">NSEC_PER_SEC</span>)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">        [<span class="keyword">self</span>.bgView setImage:[<span class="built_in">UIImage</span> imageNamed:<span class="string">@"bgViewOn"</span>]];</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">CGFloat</span> X = <span class="built_in">CGRectGetWidth</span>(<span class="keyword">self</span>.frame)/<span class="number">2</span>;</span><br><span class="line">    <span class="built_in">CGRect</span> frame = <span class="keyword">self</span>.btnView.frame;</span><br><span class="line">     <span class="comment">/*创建弹性动画</span></span><br><span class="line"><span class="comment">     damping:阻尼，范围0-1，阻尼越接近于0，弹性效果越明显</span></span><br><span class="line"><span class="comment">     velocity:弹性复位的速度</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    [<span class="built_in">UIView</span> animateWithDuration:<span class="number">0.2</span> delay:<span class="number">0</span> usingSpringWithDamping:<span class="number">0.8</span> initialSpringVelocity:<span class="number">1.0</span> options:<span class="built_in">UIViewAnimationOptionCurveLinear</span> animations:^&#123;</span><br><span class="line">        [<span class="keyword">self</span>.btnView setFrame:<span class="built_in">CGRectMake</span>(X, frame.origin.y, frame.size.width, frame.size.height)];</span><br><span class="line">    &#125; completion:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  关闭</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">-(<span class="keyword">void</span>)switchClose&#123;</span><br><span class="line">    <span class="comment">//替换图片 这里仅做简单的图片替换</span></span><br><span class="line">    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(<span class="number">0.005</span> * <span class="built_in">NSEC_PER_SEC</span>)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">        [<span class="keyword">self</span>.bgView setImage:[<span class="built_in">UIImage</span> imageNamed:<span class="string">@"bgViewOff"</span>]];</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">CGFloat</span> X = <span class="number">2</span>;</span><br><span class="line">    <span class="built_in">CGRect</span> frame = <span class="keyword">self</span>.btnView.frame;</span><br><span class="line">    <span class="comment">//修改按钮图片的位置</span></span><br><span class="line"> [<span class="built_in">UIView</span> animateWithDuration:<span class="number">0.2</span> delay:<span class="number">0</span> usingSpringWithDamping:<span class="number">0.9</span> initialSpringVelocity:<span class="number">1.0</span> options:<span class="built_in">UIViewAnimationOptionCurveLinear</span> animations:^&#123;</span><br><span class="line">         [<span class="keyword">self</span>.btnView setFrame:<span class="built_in">CGRectMake</span>(X, frame.origin.y, frame.size.width, frame.size.height)];</span><br><span class="line">    &#125; completion:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>viewController.m<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//创建view</span></span><br><span class="line">    WJSwitchView * firstView = [[WJSwitchView alloc] initWithFrame:<span class="keyword">self</span>.firstSwitchView.bounds withTag:<span class="number">1</span> delegate:<span class="keyword">self</span>];</span><br><span class="line">    [<span class="keyword">self</span>.firstSwitchView addSubview:firstView];</span><br><span class="line">    </span><br><span class="line">    WJSwitchView * secondView = [[WJSwitchView alloc] initWithFrame:<span class="keyword">self</span>.firstSwitchView.bounds withTag:<span class="number">2</span> delegate:<span class="keyword">self</span>];</span><br><span class="line">    [<span class="keyword">self</span>.secondSwitchView addSubview:secondView];</span><br><span class="line">    </span><br><span class="line">    WJSwitchView * thirdView = [[WJSwitchView alloc] initWithFrame:<span class="keyword">self</span>.firstSwitchView.bounds withTag:<span class="number">3</span> delegate:<span class="keyword">self</span>];</span><br><span class="line">    [<span class="keyword">self</span>.thirdSwitchView addSubview:thirdView];</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#pragma mark - WJSwitchViewDelegate</span></span><br><span class="line"><span class="comment">//协议方法</span></span><br><span class="line">-(<span class="keyword">void</span>)WJSwitchViewDelegateWithSwitchStates:(<span class="built_in">BOOL</span>)isopen withTag:(<span class="built_in">NSInteger</span>)tag&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%ld"</span>,tag);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>按钮的位置移动可以使用CAAnimation做一些简单的动画过度,或者直接使用UIView的封装方法实现一些效果来实现,关于动画的一些基本应用,在文集中有转载一篇写的特好的文章讲动画的!!建议自己可以跟着敲一次!!<br>PS:能用自带插件最好劝说需求用吧,毕竟系统的很强大!  ~~不过我和我们需求谈判失败了…</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+    
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/category/环形进度条的简单实现/" rel="next" title="环形进度条的简单实现">
+                <i class="fa fa-chevron-left"></i> 环形进度条的简单实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/category/UICollectionViewLayout的简单使用-简单瀑布流/" rel="prev" title="UICollectionViewLayout的简单使用(简单瀑布流)">
+                UICollectionViewLayout的简单使用(简单瀑布流) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MzU2MC8yMDA5OQ=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar1.jpeg" alt="Jian Wang">
+            
+              <p class="site-author-name" itemprop="name">Jian Wang</p>
+              <div class="site-description motion-element" itemprop="description">IT iOS 前端 nodejs</div>
+          </div>
+          
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJSummer" title="GitHub &rarr; https://github.com/WangJSummer" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:jianw1021@163.com" title="E-Mail &rarr; mailto:jianw1021@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jian Wang</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">40k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    
+    <span title="站点阅读时长">36 分钟</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/reading_progress/reading_progress.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: 'category/简单自定义选择按钮-switchDemo/'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?bd2294fafea3389ee458f1d9be5a2157"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":250,"height":415},"mobile":{"show":true},"react":{"opacityDefault":0.7,"opacityOnHover":0.2}});</script></body>
+</html>

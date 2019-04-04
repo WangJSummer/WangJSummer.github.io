@@ -104,6 +104,7 @@
 
 
   <meta name="description" content="本篇笔记主要针对的场景问题：需要并发执行多个AFNetworking请求，并且在多个请求成功返回结果之后，根据它们的结果来执行下一个任务。 一 dispatch_group 介绍1.1 基本概念：将追加到队列的一系列任务放进组中，可用于监听任务完成情况。 1.2 常用方法：  dispatch_group_create() 创建一个调度任务组。 disaptch_group_async (disp">
+<meta name="keywords" content="Objective-C,GCD">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GCD并发多个请求(如Afn请求)">
 <meta property="og:url" content="https://wjsummer.top/category/GCD并发多个请求-如Afn请求/index.html">
@@ -113,7 +114,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2203462-06856643e1e2d8af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2203462-d6f3ef1e540682e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2203462-8710d792e3947f96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-04-04T07:35:40.000Z">
+<meta property="og:updated_time" content="2019-04-04T08:39:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GCD并发多个请求(如Afn请求)">
 <meta name="twitter:description" content="本篇笔记主要针对的场景问题：需要并发执行多个AFNetworking请求，并且在多个请求成功返回结果之后，根据它们的结果来执行下一个任务。 一 dispatch_group 介绍1.1 基本概念：将追加到队列的一系列任务放进组中，可用于监听任务完成情况。 1.2 常用方法：  dispatch_group_create() 创建一个调度任务组。 disaptch_group_async (disp">
@@ -307,40 +308,11 @@
 
       
       
-        <li class="menu-item menu-item-search">
-          
-            <a href="javascript:;" class="popup-trigger">
-          
-            
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
-        </li>
-      
     </ul>
   
 
   
 
-  
-    <div class="site-search">
-      
-  <div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-      <i class="fa fa-search"></i>
-    </span>
-    <span class="popup-btn-close">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
-    </div>
-  </div>
-  <div id="local-search-result"></div>
-</div>
-
-
-
-    </div>
   
 </nav>
 
@@ -427,7 +399,7 @@
                 
               
 
-              <time title="创建时间：2019-04-04 15:34:15 / 修改时间：15:35:40" itemprop="dateCreated datePublished" datetime="2019-04-04T15:34:15+08:00">2019-04-04</time>
+              <time title="创建时间：2019-04-04 15:34:15 / 修改时间：16:39:36" itemprop="dateCreated datePublished" datetime="2019-04-04T15:34:15+08:00">2019-04-04</time>
             
 
             
@@ -437,6 +409,24 @@
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -467,7 +457,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">4.2k</span>
+                <span title="本文字数">4.1k</span>
               
 
               
@@ -516,7 +506,7 @@
 </ul>
 <h4 id="二-实际使用场景（并发执行第多个任务）"><a href="#二-实际使用场景（并发执行第多个任务）" class="headerlink" title="二 实际使用场景（并发执行第多个任务）"></a>二 实际使用场景（并发执行第多个任务）</h4><h5 id="2-1-并发执行非异步任务"><a href="#2-1-并发执行非异步任务" class="headerlink" title="2.1 并发执行非异步任务"></a>2.1 并发执行非异步任务</h5><p><strong>需求描述</strong>：并发执行任务1和任务2，当它们执行结束后，执行任务3。</p>
 <p><strong>分析</strong>：使用dispatch_group_async搭配dispatch_group_notify即可实现并行执行任务1和任务2 ，并且监听两个任务执行完毕之后，再执行任务3。</p>
-<h6 id="2-1-1-代码解析"><a href="#2-1-1-代码解析" class="headerlink" title="2.1.1 代码解析"></a>2.1.1 代码解析</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (void)asyncWithGroup &#123;</span><br><span class="line">    //创建group</span><br><span class="line">    dispatch_group_t group = dispatch_group_create();</span><br><span class="line">    //全局并行队列</span><br><span class="line">    dispatch_queue_t globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        NSLog(@&quot;执行任务--1--&quot;);</span><br><span class="line">        sleep(1);</span><br><span class="line">        NSLog(@&quot;执行结束--1--&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        NSLog(@&quot;执行任务--2--&quot;);</span><br><span class="line">        sleep(3);</span><br><span class="line">        NSLog(@&quot;执行结束--2--&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    //监听组中任务全部执行完毕</span><br><span class="line">    dispatch_group_notify(group, globalQueue, ^&#123;</span><br><span class="line">        NSLog(@&quot;开始执行任务--3--&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="2-1-1-代码解析"><a href="#2-1-1-代码解析" class="headerlink" title="2.1.1 代码解析"></a>2.1.1 代码解析</h6><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (void)asyncWithGroup &#123;</span><br><span class="line">    <span class="comment">//创建group</span></span><br><span class="line">    dispatch_group_t group = dispatch_group_create();</span><br><span class="line">    <span class="comment">//全局并行队列</span></span><br><span class="line">    dispatch_queue_t globalQueue = dispatch_get_global_queue(<span class="type">DISPATCH_QUEUE_PRIORITY_DEFAULT</span>, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行任务--1--"</span>);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行结束--1--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行任务--2--"</span>);</span><br><span class="line">        sleep(<span class="number">3</span>);</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行结束--2--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//监听组中任务全部执行完毕</span></span><br><span class="line">    dispatch_group_notify(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"开始执行任务--3--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>打印情况如下：<br><img src="https://upload-images.jianshu.io/upload_images/2203462-06856643e1e2d8af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>可见任务1和任务2是并发执行，并且在他们执行完毕之后，才执行任务3。</p>
 <h5 id="2-2-并发执行异步任务"><a href="#2-2-并发执行异步任务" class="headerlink" title="2.2 并发执行异步任务"></a>2.2 并发执行异步任务</h5><p><strong>需求描述</strong>：并行执行任务1和任务2，任务1和任务2这里都是使用AFNnetworking发送请求，等待任务1和任务2请求完成（成功或失败）之后，再继续执行任务3。</p>
 <p><strong>分析</strong>：</p>
@@ -531,9 +521,9 @@
 </ol>
 </li>
 </ul>
-<h6 id="2-2-1-代码解析（这里主要针对第一种实现方法做说明）"><a href="#2-2-1-代码解析（这里主要针对第一种实现方法做说明）" class="headerlink" title="2.2.1 代码解析（这里主要针对第一种实现方法做说明）"></a>2.2.1 代码解析（这里主要针对第一种实现方法做说明）</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">//请求连接</span><br><span class="line">static NSString *url = @&quot;http://httpbin.org/get&quot;;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> 封装afn请求</span><br><span class="line"></span><br><span class="line"> @param url 使用定义的url</span><br><span class="line"> @param result 用于简化，将success和failure统一描述</span><br><span class="line"> */</span><br><span class="line">- (void)loadDataWithURL:(NSString *)url result:(void(^)(BOOL isSuccess))result &#123;</span><br><span class="line">    </span><br><span class="line">    __block BOOL isSuccess = NO;</span><br><span class="line">    [self.manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) &#123;</span><br><span class="line">        isSuccess = YES;</span><br><span class="line">        result(isSuccess);</span><br><span class="line">    &#125; failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) &#123;</span><br><span class="line">        isSuccess = NO;</span><br><span class="line">        result(isSuccess);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> 使用group并发执行两个网络请求任务，三个任务执行完之后执行任务3</span><br><span class="line"> */</span><br><span class="line">- (void)loadDataConcurrentWithGroup &#123;</span><br><span class="line">    //创建group</span><br><span class="line">    dispatch_group_t group = dispatch_group_create();</span><br><span class="line">    //全局并发队列</span><br><span class="line">    dispatch_queue_t globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_enter(group);</span><br><span class="line">    dispatch_async(globalQueue, ^&#123;</span><br><span class="line">        NSLog(@&quot;任务--1--开始&quot;);</span><br><span class="line">        [self loadDataWithURL:url result:^(BOOL isSuccess) &#123;</span><br><span class="line">            NSLog(@&quot;任务--1--完成&quot;);</span><br><span class="line">            dispatch_group_leave(group);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_enter(group);</span><br><span class="line">    dispatch_async(globalQueue, ^&#123;</span><br><span class="line">        NSLog(@&quot;任务--2--开始&quot;);</span><br><span class="line">        [self loadDataWithURL:url result:^(BOOL isSuccess) &#123;</span><br><span class="line">            NSLog(@&quot;任务--2--完成&quot;);</span><br><span class="line">            dispatch_group_leave(group);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_notify(group, globalQueue, ^&#123;</span><br><span class="line">        dispatch_async(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            NSLog(@&quot;开始执行任务--3--&quot;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="2-2-1-代码解析（这里主要针对第一种实现方法做说明）"><a href="#2-2-1-代码解析（这里主要针对第一种实现方法做说明）" class="headerlink" title="2.2.1 代码解析（这里主要针对第一种实现方法做说明）"></a>2.2.1 代码解析（这里主要针对第一种实现方法做说明）</h6><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//请求连接</span></span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *url = <span class="string">@"http://httpbin.org/get"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> 封装afn请求</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> @param url 使用定义的url</span></span><br><span class="line"><span class="comment"> @param result 用于简化，将success和failure统一描述</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)loadDataWithURL:(<span class="built_in">NSString</span> *)url result:(<span class="keyword">void</span>(^)(<span class="built_in">BOOL</span> isSuccess))result &#123;</span><br><span class="line">    </span><br><span class="line">    __block <span class="built_in">BOOL</span> isSuccess = <span class="literal">NO</span>;</span><br><span class="line">    [<span class="keyword">self</span>.manager GET:url parameters:<span class="literal">nil</span> progress:<span class="literal">nil</span> success:^(<span class="built_in">NSURLSessionDataTask</span> * _Nonnull task, <span class="keyword">id</span>  _Nullable responseObject) &#123;</span><br><span class="line">        isSuccess = <span class="literal">YES</span>;</span><br><span class="line">        result(isSuccess);</span><br><span class="line">    &#125; failure:^(<span class="built_in">NSURLSessionDataTask</span> * _Nullable task, <span class="built_in">NSError</span> * _Nonnull error) &#123;</span><br><span class="line">        isSuccess = <span class="literal">NO</span>;</span><br><span class="line">        result(isSuccess);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> 使用group并发执行两个网络请求任务，三个任务执行完之后执行任务3</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)loadDataConcurrentWithGroup &#123;</span><br><span class="line">    <span class="comment">//创建group</span></span><br><span class="line">    dispatch_group_t group = dispatch_group_create();</span><br><span class="line">    <span class="comment">//全局并发队列</span></span><br><span class="line">    <span class="built_in">dispatch_queue_t</span> globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_enter(group);</span><br><span class="line">    <span class="built_in">dispatch_async</span>(globalQueue, ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"任务--1--开始"</span>);</span><br><span class="line">        [<span class="keyword">self</span> loadDataWithURL:url result:^(<span class="built_in">BOOL</span> isSuccess) &#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"任务--1--完成"</span>);</span><br><span class="line">            dispatch_group_leave(group);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_enter(group);</span><br><span class="line">    <span class="built_in">dispatch_async</span>(globalQueue, ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"任务--2--开始"</span>);</span><br><span class="line">        [<span class="keyword">self</span> loadDataWithURL:url result:^(<span class="built_in">BOOL</span> isSuccess) &#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"任务--2--完成"</span>);</span><br><span class="line">            dispatch_group_leave(group);</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_notify(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"开始执行任务--3--"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>打印结果如下图所示：<br><img src="https://upload-images.jianshu.io/upload_images/2203462-d6f3ef1e540682e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>可见任务1和任务2是并发执行，等到任务1和任务2请求成功返回请求结果后，才执行任务3。</p>
-<p><strong>注意：</strong>上述代码如果将dispatch_group_leave(group)放在afn请求外面的话（如下所示），会是什么结果呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">    dispatch_async(globalQueue, ^&#123;</span><br><span class="line">        NSLog(@&quot;任务--1--开始&quot;);</span><br><span class="line">        [self loadDataWithURL:url result:^(BOOL isSuccess) &#123;</span><br><span class="line">            NSLog(@&quot;任务--1--完成&quot;);</span><br><span class="line">//            dispatch_group_leave(group);</span><br><span class="line">        &#125;];</span><br><span class="line">        dispatch_group_leave(group);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure></p>
+<p><strong>注意：</strong>上述代码如果将dispatch_group_leave(group)放在afn请求外面的话（如下所示），会是什么结果呢？<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">    dispatch_async(<span class="name">globalQueue</span>, ^&#123;</span><br><span class="line">        NSLog(@<span class="string">"任务--1--开始"</span>)<span class="comment">;</span></span><br><span class="line">        [self loadDataWithURL<span class="symbol">:url</span> result:^(<span class="name">BOOL</span> isSuccess) &#123;</span><br><span class="line">            NSLog(@<span class="string">"任务--1--完成"</span>)<span class="comment">;</span></span><br><span class="line">//            dispatch_group_leave(<span class="name">group</span>)<span class="comment">;</span></span><br><span class="line">        &#125;]<span class="comment">;</span></span><br><span class="line">        dispatch_group_leave(<span class="name">group</span>)<span class="comment">;</span></span><br><span class="line">    &#125;)<span class="comment">;</span></span><br></pre></td></tr></table></figure></p>
 <p>此时在loadDataWithURL调用之后，发送afn请求，然后就会执行dispatch_group_leave（group），那么此时其实跟调用dispatch_group_async是一样的意思了。并不能监控到两个afn请求的成功返回。所以运行打印结果如下图所示：<br><img src="https://upload-images.jianshu.io/upload_images/2203462-8710d792e3947f96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
 <h6 id="2-2-2-使用dispatch-group和disaptch-semaphore信号量实现方法会在dispatch-semaphore笔记中介绍。"><a href="#2-2-2-使用dispatch-group和disaptch-semaphore信号量实现方法会在dispatch-semaphore笔记中介绍。" class="headerlink" title="2.2.2 使用dispatch_group和disaptch_semaphore信号量实现方法会在dispatch_semaphore笔记中介绍。"></a>2.2.2 使用dispatch_group和disaptch_semaphore信号量实现方法会在dispatch_semaphore笔记中介绍。</h6><p><strong>结语：</strong> 路漫漫其修远兮，吾将上下而求索。</p>
 
@@ -567,6 +557,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+          
+            <a href="/tags/GCD/" rel="tag"># GCD</a>
+          
+        </div>
+      
 
       
       
@@ -576,15 +574,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/category/demo1/" rel="next" title="demo1">
-                <i class="fa fa-chevron-left"></i> demo1
-              </a>
-            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/category/GCD倒计时Demo/" rel="prev" title="GCD倒计时Demo">
+                GCD倒计时Demo <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -605,6 +603,11 @@
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MzU2MC8yMDA5OQ=="></div>
+    </div>
 
   
 
@@ -647,7 +650,7 @@
               <p class="site-author-name" itemprop="name">Jian Wang</p>
               <div class="site-description motion-element" itemprop="description">IT iOS 前端 nodejs</div>
           </div>
-
+          
           
             <nav class="site-state motion-element">
               
@@ -655,7 +658,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -695,7 +698,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">2</span>
+                      
+                    
+                    <span class="site-state-item-count">3</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -808,7 +813,7 @@
     
       <span class="post-meta-item-text">站点总字数：</span>
     
-    <span title="站点总字数">8k</span>
+    <span title="站点总字数">40k</span>
   
 
   
@@ -819,7 +824,7 @@
     
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
     
-    <span title="站点阅读时长">7 分钟</span>
+    <span title="站点阅读时长">36 分钟</span>
   
 </div>
 
@@ -975,329 +980,24 @@
 
 
   
+    <script>
+  window.livereOptions = {
+    refer: 'category/GCD并发多个请求-如Afn请求/'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
 
 
   
-  <script>
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-    var search_path = "";
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
-
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
-
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
-
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
-
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
-
-      
-
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.header-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
-
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
-
-                // show search results
-
-                if (isMatch) {
-                  // sort index by position of keyword
-
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
-
-                  // merge hits into slices
-
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
-
-                      // move to next position of hit
-
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
-
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
-
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
-
-                  // sort slices in content by search text's count and hits' count
-
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
-
-                  // select top N slices in content
-
-                  var upperBound = parseInt('1');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
-
-                  // highlight title and content
-
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-          if ('auto' === 'auto') {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
-    });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
-    });
-  </script>
-
 
 
 

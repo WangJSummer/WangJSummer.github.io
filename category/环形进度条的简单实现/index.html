@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="小牢骚好久没有记录文章了,近期在学习前端的相关知识,也没有好好的静下心来整理东西,这次准备把之前自己用到的东西做一个总结,方便以后自己查阅. 正文这次记录使用CALayer创建一个环形进度条的view,加上简单的动画,项目中刚好有使用到。效果图：要点： 主要使用layer的mask属性，mask属性可以让layer只显示遮罩层上面的路径（环形） 分析在进度值为0的时候，有一个黄色的底色，然后进度条">
+<meta property="og:type" content="article">
+<meta property="og:title" content="环形进度条的简单实现">
+<meta property="og:url" content="https://wjsummer.top/category/环形进度条的简单实现/index.html">
+<meta property="og:site_name" content="MrSummerの小窝">
+<meta property="og:description" content="小牢骚好久没有记录文章了,近期在学习前端的相关知识,也没有好好的静下心来整理东西,这次准备把之前自己用到的东西做一个总结,方便以后自己查阅. 正文这次记录使用CALayer创建一个环形进度条的view,加上简单的动画,项目中刚好有使用到。效果图：要点： 主要使用layer的mask属性，mask属性可以让layer只显示遮罩层上面的路径（环形） 分析在进度值为0的时候，有一个黄色的底色，然后进度条">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-b354fa97e09dd7e2.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-a061b89e06540d0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-e1aee6e4ee8cd594.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-04-04T08:41:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="环形进度条的简单实现">
+<meta name="twitter:description" content="小牢骚好久没有记录文章了,近期在学习前端的相关知识,也没有好好的静下心来整理东西,这次准备把之前自己用到的东西做一个总结,方便以后自己查阅. 正文这次记录使用CALayer创建一个环形进度条的view,加上简单的动画,项目中刚好有使用到。效果图：要点： 主要使用layer的mask属性，mask属性可以让layer只显示遮罩层上面的路径（环形） 分析在进度值为0的时候，有一个黄色的底色，然后进度条">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2203462-b354fa97e09dd7e2.gif?imageMogr2/auto-orient/strip">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="MrSummerの小窝" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://wjsummer.top/category/环形进度条的简单实现/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>环形进度条的简单实现 | MrSummerの小窝</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MrSummerの小窝</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://wjsummer.top/category/环形进度条的简单实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jian Wang">
+      <meta itemprop="description" content="IT iOS 前端 nodejs">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MrSummerの小窝">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">环形进度条的简单实现
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-04 16:40:56 / 修改时间：16:41:00" itemprop="dateCreated datePublished" datetime="2019-04-04T16:40:56+08:00">2019-04-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">6.7k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">6 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h6 id="小牢骚"><a href="#小牢骚" class="headerlink" title="小牢骚"></a>小牢骚</h6><p>好久没有记录文章了,近期在学习前端的相关知识,也没有好好的静下心来整理东西,这次准备把之前自己用到的东西做一个总结,方便以后自己查阅.</p>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>这次记录使用CALayer创建一个环形进度条的view,加上简单的动画,项目中刚好有使用到。<br>效果图：<br><img src="http://upload-images.jianshu.io/upload_images/2203462-b354fa97e09dd7e2.gif?imageMogr2/auto-orient/strip" alt="porgressView.gif"><br>要点： 主要使用layer的mask属性，mask属性可以让layer只显示遮罩层上面的路径（环形）</p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><p>在进度值为0的时候，有一个黄色的底色，然后进度条的颜色是渐变的，底色环形可以通过给view的layer添加一个带环形路径的CAShapeLayer作为mask,渐变色可以使用CAGrandientLayer创建一个渐变图层，然后创建一个带环形路径的CAShapeLayer,将其作为渐变图层的mask，这样就能达到预期的效果</p>
+<h3 id="相关知识点"><a href="#相关知识点" class="headerlink" title="相关知识点"></a>相关知识点</h3><ul>
+<li>CAGradientLayer<br>创建渐变色layer,他是继承自CALayer的一个用于绘制多色图层的子类，主要用于设置的属性值为<ul>
+<li>@property(nullable, copy) NSArray *colors;<br>设置需要加载的颜色数组（CGColorRef类型）</li>
+<li>@property(nullable, copy) NSArray<nsnumber *> *locations;<br>不同颜色值的分布分割点（NSNumber类型）</nsnumber></li>
+<li>@property CGPoint startPoint;</li>
+<li>@property CGPoint endPoint;</li>
+</ul>
+</li>
+</ul>
+<p>具体的相关详细解析这里引用一篇文章:<a href="CAGradientLayer">CAGradientLayer详细使用</a><br>本文中使用到的只是简单的创建三个颜色值的图层<br> <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CAGradientLayer</span> *layer = [<span class="built_in">CAGradientLayer</span> layer];</span><br><span class="line">    layer.frame = <span class="keyword">self</span>.bounds;</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *muColors = [<span class="built_in">NSMutableArray</span> array];<span class="comment">//颜色数组，放置CGColorref</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.colors) &#123;</span><br><span class="line">        [<span class="keyword">self</span>.colors enumerateObjectsUsingBlock:^(<span class="keyword">id</span>  _Nonnull obj, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> * _Nonnull stop) &#123;</span><br><span class="line">            <span class="keyword">if</span> ([obj isKindOfClass:[<span class="built_in">UIColor</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">                <span class="built_in">UIColor</span> *color = (<span class="built_in">UIColor</span> *)obj;</span><br><span class="line">                [muColors addObject:(<span class="keyword">id</span>)color.CGColor];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//设置两组白色</span></span><br><span class="line">        [muColors addObject:(<span class="keyword">id</span>)[<span class="built_in">UIColor</span> whiteColor].CGColor];</span><br><span class="line">        [muColors addObject:(<span class="keyword">id</span>)[<span class="built_in">UIColor</span> whiteColor].CGColor];</span><br><span class="line">    &#125;</span><br><span class="line">    layer.colors = muColors;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">self</span>.locations) &#123;</span><br><span class="line">        <span class="comment">//随便设置两组分割点</span></span><br><span class="line">        <span class="keyword">self</span>.locations = [<span class="built_in">NSMutableArray</span> arrayWithObjects:@<span class="number">0.1</span>, @<span class="number">0.9</span>,<span class="literal">nil</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    layer.locations = <span class="keyword">self</span>.locations;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> layer;</span><br></pre></td></tr></table></figure></p>
+<p>代码中的self.colors为包含UICololr的颜色数组，self.locations为包含NSNumber值的数组<br>颜色值设为@[COLOR(100, 150, 0, 1),COLOR(0, 150, 130, 1),COLOR(60, 0, 190, 1)];location设置为@[@0.1,0.5,0.9]，效果如下<br><img src="http://upload-images.jianshu.io/upload_images/2203462-a061b89e06540d0e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="渐变色图层.png"></p>
+<ul>
+<li>CAShaprLayer 一个很强大的CALayer子类，由于其可以添加path路径，因此可以绘制出很多复杂的图形。这里也引用一篇之前看过的不错的博客：<a href="http://www.cocoachina.com/ios/20160214/15251.html" target="_blank" rel="noopener">关于CAShapeLayer和UIBzierPath的使用</a><br>本文中主要使用CAShapeLayer创建一个环形路径的图层<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#define DEGREES_TO_ANGLE(x) (M_PI * (x) / 180.0) // 将角度转为弧度</span></span><br><span class="line"><span class="built_in">CAShapeLayer</span> *layer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">    layer.frame = <span class="keyword">self</span>.bounds;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UIBezierPath</span> *path =  [<span class="built_in">UIBezierPath</span> bezierPathWithArcCenter:<span class="built_in">CGPointMake</span>(<span class="keyword">self</span>.bounds.size.width / <span class="number">2</span>, <span class="keyword">self</span>.bounds.size.height / <span class="number">2</span>) radius:<span class="keyword">self</span>.bounds.size.width / <span class="number">2.5</span> startAngle:DEGREES_TO_ANGLE(<span class="number">-90</span>) endAngle:DEGREES_TO_ANGLE(<span class="number">270</span>) clockwise:<span class="literal">YES</span>]; <span class="comment">//注意这里的半径,应该为宽度1/2-linewidth/2</span></span><br><span class="line">    layer.lineWidth = <span class="keyword">self</span>.lineWidth; <span class="comment">//线的宽度</span></span><br><span class="line">    layer.path = path.CGPath;</span><br><span class="line">    layer.fillColor = [<span class="built_in">UIColor</span> clearColor].CGColor; <span class="comment">//设置填充颜色</span></span><br><span class="line">    layer.strokeColor = [<span class="built_in">UIColor</span> blackColor].CGColor; <span class="comment">// 设置画笔颜色</span></span><br><span class="line">    layer.lineCap = kCALineCapRound; <span class="comment">// 设置线为圆角</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>其中需要注意的点：</p>
+<ul>
+<li>这里的坐标系和数学中的坐标系是反的，简单的理解就是-90°等价数学坐标系中的90°，90°等价数学坐标系中的270°，所以如果希望进度条从顶部按照顺时针走，那么在设置UIBezierPath画圆弧的时候就应该为clockwise：yes(顺时针)，startangle(开始弧度)：(-90°对应的弧度)，endangle：(270°对应的弧度)，这样就是生成按照顺时针方向从-90°的点到270°的点之间的路径。<br>如下图片中不同的角度对应的效果图：<br><img src="http://upload-images.jianshu.io/upload_images/2203462-e1aee6e4ee8cd594.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="多种弧度的圆弧.png"></li>
+<li>在选择半径时，如果fram宽度为100，希望绘制一个宽度20紧靠边缘的环形，那么半径应该是50-20/2，并不是50-20。</li>
+</ul>
+<h3 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h3><p>progressView.h<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="built_in">NS_ENUM</span> (<span class="built_in">NSInteger</span>, WJStrokeType)<span class="comment">//动画方式</span></span><br><span class="line">&#123;</span><br><span class="line">    WJStrokeTypeStart, <span class="comment">//开始</span></span><br><span class="line">    WJStrokeTypeEnd <span class="comment">//结束</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//动画结束回调</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">void</span>(^ProgressEnd)();</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">WJProgressView</span> : <span class="title">UIView</span></span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  线宽</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">assign</span>)<span class="built_in">CGFloat</span> lineWidth;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  背景颜色</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>)<span class="built_in">UIColor</span> *bgColor;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  渐变色颜色组</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>)<span class="built_in">NSArray</span> *colors;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  颜色分割位置数组</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>)<span class="built_in">NSArray</span> *locations;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  隐藏百分比label</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)hidePercent;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  设置创建图层</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)startProress;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  更新progress</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  @param value progress Value</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)reloadValue:(<span class="built_in">CGFloat</span>)value;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  进度动画</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  @param beginValue 开始value</span></span><br><span class="line"><span class="comment"> *  @param endValue   结束value</span></span><br><span class="line"><span class="comment"> *  @param duration   动画持续时间</span></span><br><span class="line"><span class="comment"> *  @param type       动画类型</span></span><br><span class="line"><span class="comment"> *  @param endBlock   动画结束回调</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)setprogressFromValue:(<span class="built_in">CGFloat</span>)beginValue endValue:(<span class="built_in">CGFloat</span>)endValue duration:(<span class="built_in">CGFloat</span>)duration strokeType:(WJStrokeType)type end:(ProgressEnd)endBlock;</span><br></pre></td></tr></table></figure></p>
+<p>.m<br><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">- (void)setprogressFromValue:(CGFloat)<span class="keyword">beginValue </span>endValue:(CGFloat)endValue duration:(CGFloat)time strokeType:(WJStrokeType)type end:(ProgressEnd)endBlock</span><br><span class="line">&#123;</span><br><span class="line">    if (<span class="keyword">beginValue </span>&gt;= <span class="number">1</span>.<span class="number">0</span>) &#123;</span><br><span class="line">        endBlock()<span class="comment">;</span></span><br><span class="line">        return<span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">    _endValue = endValue<span class="comment">;</span></span><br><span class="line">    self.animationEnd = endBlock<span class="comment">;</span></span><br><span class="line">    NSString *animationName = @<span class="string">"strokeStart"</span><span class="comment">;</span></span><br><span class="line">    if (type) &#123;</span><br><span class="line">        animationName = @<span class="string">"strokeEnd"</span><span class="comment">;</span></span><br><span class="line">    &#125;</span><br><span class="line">    CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:animationName]<span class="comment">;</span></span><br><span class="line">    pathAnimation.duration = time<span class="comment">;</span></span><br><span class="line">    pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]<span class="comment">;</span></span><br><span class="line">    pathAnimation.fromValue = [NSNumber numberWithFloat:<span class="keyword">beginValue];</span></span><br><span class="line"><span class="keyword"> </span>   pathAnimation.toValue = [NSNumber numberWithFloat:endValue]<span class="comment">;</span></span><br><span class="line">    pathAnimation.autoreverses = NO<span class="comment">;</span></span><br><span class="line">    pathAnimation.delegate = self<span class="comment">;</span></span><br><span class="line">    pathAnimation.removedOnCompletion = NO<span class="comment">;</span></span><br><span class="line">    pathAnimation.fillMode = kCAFillModeForwards<span class="comment">;</span></span><br><span class="line">    [self.colorMaskLayer <span class="keyword">addAnimation:pathAnimation </span>forKey:@<span class="string">"strokeAnimation"</span>]<span class="comment">;</span></span><br><span class="line">    </span><br><span class="line">    [self creatTimerFromValue:<span class="keyword">beginValue </span>endValue:endValue duration:time]<span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于cCAShapeLayer，stokeEnd和strokestart属性都直接动画操作。<br>在动画过程中关于中间percentLabel的显示，使用定时器设置时间间隔实现变化。<br><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> 创建定时器在layer animation过程中改变percent</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> @param beginValue 初始值</span></span><br><span class="line"><span class="comment"> @param endValue 结束值</span></span><br><span class="line"><span class="comment"> @param time 时间间隔</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (void)creatTimerFromValue:(CGFloat)<span class="keyword">beginValue </span>endValue:(CGFloat)endValue duration:(CGFloat)time</span><br><span class="line">&#123;</span><br><span class="line">    __block CGFloat <span class="keyword">beginPercent </span>= <span class="keyword">beginValue;</span></span><br><span class="line"><span class="keyword"> </span>   CGFloat timeInterval = <span class="number">0</span>.<span class="number">1</span><span class="comment">;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">dispatch_queue_t </span>queue = <span class="keyword">dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, </span><span class="number">0</span>)<span class="comment">;</span></span><br><span class="line">    self.timer = <span class="keyword">dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, </span><span class="number">0</span>, <span class="number">0</span>, queue)<span class="comment">;</span></span><br><span class="line">    <span class="keyword">dispatch_source_set_timer(self.timer, </span><span class="keyword">dispatch_walltime(NULL, </span><span class="number">0</span>), timeInterval*NSEC_PER_SEC, <span class="number">0</span>)<span class="comment">;</span></span><br><span class="line">    <span class="keyword">dispatch_source_set_event_handler(self.timer, </span>^&#123;</span><br><span class="line">        <span class="keyword">dispatch_async(dispatch_get_main_queue(), </span>^&#123;</span><br><span class="line">            CGFloat <span class="keyword">difference </span>= endValue - <span class="keyword">beginValue;</span></span><br><span class="line"><span class="keyword"> </span>           CGFloat <span class="keyword">addValue </span>= <span class="keyword">difference/time/(1/timeInterval);</span></span><br><span class="line"><span class="keyword"> </span>           <span class="keyword">beginPercent </span>+= <span class="keyword">addValue;</span></span><br><span class="line"><span class="keyword"> </span>           if (<span class="keyword">beginPercent </span>&gt;= endValue)  <span class="keyword">beginPercent </span>= endValue<span class="comment">;</span></span><br><span class="line">            if (<span class="keyword">beginPercent </span>&gt;= <span class="number">1</span>.<span class="number">0</span>)  <span class="keyword">beginPercent </span>= <span class="number">1</span>.<span class="number">0</span>f<span class="comment">;</span></span><br><span class="line">            [self reloadPercentLabelValue:<span class="keyword">beginPercent];</span></span><br><span class="line"><span class="keyword"> </span>       &#125;)<span class="comment">;</span></span><br><span class="line">    &#125;)<span class="comment">;</span></span><br><span class="line">    <span class="keyword">dispatch_resume(_timer);</span></span><br><span class="line"><span class="keyword">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>注意点：dispatch_source_t 的创建定一个属性值来保存。不要直接在方法中创建。<br>在动画结束后对timer进行销毁处理。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)animationDidStop:(<span class="built_in">CAAnimation</span> *)anim finished:(<span class="built_in">BOOL</span>)flag</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.animationEnd) <span class="keyword">self</span>.animationEnd();</span><br><span class="line">    [<span class="keyword">self</span>.colorMaskLayer removeAnimationForKey:<span class="string">@"strokeAnimation"</span>];</span><br><span class="line">    <span class="keyword">self</span>.colorMaskLayer.strokeEnd = _endValue;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.timer) &#123;</span><br><span class="line">        dispatch_source_cancel(<span class="keyword">self</span>.timer);</span><br><span class="line">        <span class="keyword">self</span>.timer = <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>End    <a href="https://github.com/w467364316/CircleProgressView.git" target="_blank" rel="noopener">demo地址</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+    
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/category/UITextView-placeholder的实现和解析/" rel="next" title="UITextView-placeholder的实现和解析">
+                <i class="fa fa-chevron-left"></i> UITextView-placeholder的实现和解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/category/简单自定义选择按钮-switchDemo/" rel="prev" title="简单自定义选择按钮(switchDemo)">
+                简单自定义选择按钮(switchDemo) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MzU2MC8yMDA5OQ=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar1.jpeg" alt="Jian Wang">
+            
+              <p class="site-author-name" itemprop="name">Jian Wang</p>
+              <div class="site-description motion-element" itemprop="description">IT iOS 前端 nodejs</div>
+          </div>
+          
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJSummer" title="GitHub &rarr; https://github.com/WangJSummer" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:jianw1021@163.com" title="E-Mail &rarr; mailto:jianw1021@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#小牢骚"><span class="nav-number">1.</span> <span class="nav-text">小牢骚</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#正文"><span class="nav-number"></span> <span class="nav-text">正文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析"><span class="nav-number"></span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#相关知识点"><span class="nav-number"></span> <span class="nav-text">相关知识点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码解析"><span class="nav-number"></span> <span class="nav-text">代码解析</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jian Wang</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">40k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    
+    <span title="站点阅读时长">36 分钟</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/reading_progress/reading_progress.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: 'category/环形进度条的简单实现/'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?bd2294fafea3389ee458f1d9be5a2157"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":250,"height":415},"mobile":{"show":true},"react":{"opacityDefault":0.7,"opacityOnHover":0.2}});</script></body>
+</html>

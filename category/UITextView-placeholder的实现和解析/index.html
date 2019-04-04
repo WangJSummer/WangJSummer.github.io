@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言概要项目中UITextfield使用的比较频繁，对于placeholder可以直接设置，文字，颜色，字体等等，但是UITextView继承自UIScrollView,并没有placeholder属性。项目中以前就有使用到UITextView的placeholder,当时只是外加了一个UILabel,但是每次都需要重新定制label，所以想着能够写一个类别，添加一个label，实现字体，颜色，位">
+<meta name="keywords" content="Objective-C UI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UITextView-placeholder的实现和解析">
+<meta property="og:url" content="https://wjsummer.top/category/UITextView-placeholder的实现和解析/index.html">
+<meta property="og:site_name" content="MrSummerの小窝">
+<meta property="og:description" content="前言概要项目中UITextfield使用的比较频繁，对于placeholder可以直接设置，文字，颜色，字体等等，但是UITextView继承自UIScrollView,并没有placeholder属性。项目中以前就有使用到UITextView的placeholder,当时只是外加了一个UILabel,但是每次都需要重新定制label，所以想着能够写一个类别，添加一个label，实现字体，颜色，位">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-7760a2edcc736f86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-e23a9c34f5d03ec3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-9668d7416ecf48b4.gif?imageMogr2/auto-orient/strip">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-d5be40ffdc4df595.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2203462-ca38c48721b234ae.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-04-04T08:39:19.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UITextView-placeholder的实现和解析">
+<meta name="twitter:description" content="前言概要项目中UITextfield使用的比较频繁，对于placeholder可以直接设置，文字，颜色，字体等等，但是UITextView继承自UIScrollView,并没有placeholder属性。项目中以前就有使用到UITextView的placeholder,当时只是外加了一个UILabel,但是每次都需要重新定制label，所以想着能够写一个类别，添加一个label，实现字体，颜色，位">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2203462-7760a2edcc736f86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="MrSummerの小窝" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://wjsummer.top/category/UITextView-placeholder的实现和解析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>UITextView-placeholder的实现和解析 | MrSummerの小窝</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MrSummerの小窝</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://wjsummer.top/category/UITextView-placeholder的实现和解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jian Wang">
+      <meta itemprop="description" content="IT iOS 前端 nodejs">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MrSummerの小窝">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">UITextView-placeholder的实现和解析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-04 16:18:40 / 修改时间：16:39:19" itemprop="dateCreated datePublished" datetime="2019-04-04T16:18:40+08:00">2019-04-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">8.3k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">8 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><h5 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h5><p>项目中UITextfield使用的比较频繁，对于placeholder可以直接设置，文字，颜色，字体等等，但是UITextView继承自UIScrollView,并没有placeholder属性。项目中以前就有使用到UITextView的placeholder,当时只是外加了一个UILabel,但是每次都需要重新定制label，所以想着能够写一个类别，添加一个label，实现字体，颜色，位置的可调节。</p>
+<p>这里主要是在GitHub上面发现一个很好的类别，该类别的编写者也是我所喜欢的一位iOS开发者。自己尝试写了一次，有了一定的了解，所以记录下来，方便以后查阅。<br>Demo地址：<a href="http://git.oschina.net/W-Jian/UITextView_placeholder" target="_blank" rel="noopener">码云demo下载地址</a></p>
+<h5 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h5><p>首先先上图看看效果：<br>默认效果图：<br><img src="http://upload-images.jianshu.io/upload_images/2203462-7760a2edcc736f86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="defalut_placeholder.png"><br>设置颜色和location图：<br><img src="http://upload-images.jianshu.io/upload_images/2203462-e23a9c34f5d03ec3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="color_location_placeholder.png"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2203462-9668d7416ecf48b4.gif?imageMogr2/auto-orient/strip" alt="placeholder.gif"><br>下面开始解析代码<br>根据意图，也是在UITextView中添加一个UILabel,然后添加文字，颜色，富文本，位置等属性，实现placeholder的可定制。</p>
+<h4 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h4><h5 id="h-解析"><a href="#h-解析" class="headerlink" title=".h 解析"></a>.h 解析</h5><ul>
+<li>(readOnly)UILabel *placeholdLabel</li>
+<li>NSString *placeholder placeholder                   文字</li>
+<li>UIColor *placeholderColor                                  颜色</li>
+<li>NSAttributedString *attributePlaceholder        富文本</li>
+<li>CGPoint location                                                   位置</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;UIKit/UIKit.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">UITextView</span> (<span class="title">WJPlaceholder</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">readonly</span>)  <span class="built_in">UILabel</span> *placeholdLabel;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) IBInspectable <span class="built_in">NSString</span> *placeholder;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) IBInspectable <span class="built_in">UIColor</span> *placeholderColor;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonnull</span>,<span class="keyword">strong</span>) <span class="built_in">NSAttributedString</span> *attributePlaceholder;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">assign</span>) <span class="built_in">CGPoint</span> location;</span><br><span class="line">+ (<span class="built_in">UIColor</span> *)defaultColor; <span class="comment">//获取默认颜色（选取UITextFiled的placeholder颜色）</span></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>使用IBInspectable修饰，可以使该属性在interface builder中进行编辑。placeholder和placeholder color都可以在user defined runtime attributes中进行配置，如下图：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2203462-d5be40ffdc4df595.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="UITextViewKeyPath.png"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2203462-ca38c48721b234ae.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="kvc_placeholder.png"></p>
+<h5 id="m-解析"><a href="#m-解析" class="headerlink" title=".m 解析"></a>.m 解析</h5><p>首先设置三个key值，用于关联属性的创建和获取<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">char</span> *labelKey = <span class="string">"placeholderKey"</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">char</span> *needAdjust = <span class="string">"needAdjust"</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">char</span> *changeLocation = <span class="string">"location"</span>;</span><br></pre></td></tr></table></figure></p>
+<p>创建的类别是不支持添加属性的，要实现属性的可设置，可以使用runtime来动态设置和获取属性值。<br>runtime添加关联属性<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">objc_setAssociatedObject</span>(<span class="params">id <span class="keyword">object</span>, <span class="keyword">const</span> <span class="keyword">void</span> *key, id <span class="keyword">value</span>, objc_AssociationPolicy policy</span>)</span></span><br></pre></td></tr></table></figure></p>
+<p>第一个参数(object)表示要添加属性的类，第二参数(const void *key)为一个key值，用来获取设置的属性值，第三个参数(value)为属性的值，第四个参数(objc_AssociationPolicy policy)为属性的修饰类型：一共有5个可选项：<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">typedef OBJC_ENUM(uintptr_t, objc_AssociationPolicy) &#123;</span><br><span class="line">    OBJC_ASSOCIATION_ASSIGN = <span class="number">0</span>,           <span class="comment">/**&lt; Specifies a weak reference to the associated object. */</span></span><br><span class="line">    OBJC_ASSOCIATION_RETAIN_NONATOMIC = <span class="number">1</span>, <span class="comment">/**&lt; Specifies a strong reference to the associated object. </span></span><br><span class="line"><span class="comment">                                            *   The association is not made atomically. */</span></span><br><span class="line">    OBJC_ASSOCIATION_COPY_NONATOMIC = <span class="number">3</span>,   <span class="comment">/**&lt; Specifies that the associated object is copied. </span></span><br><span class="line"><span class="comment">                                            *   The association is not made atomically. */</span></span><br><span class="line">    OBJC_ASSOCIATION_RETAIN = <span class="number">01401</span>,       <span class="comment">/**&lt; Specifies a strong reference to the associated object.</span></span><br><span class="line"><span class="comment">                                            *   The association is made atomically. */</span></span><br><span class="line">    OBJC_ASSOCIATION_COPY = <span class="number">01403</span>          <span class="comment">/**&lt; Specifies that the associated object is copied.</span></span><br><span class="line"><span class="comment">                                            *   The association is made atomically. */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>分别对应assign,retain_nonatomic,copy_nonatomic,retain,copy。</p>
+<p>runtime获取成员属性方法为：<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">id</span> objc_getAssociatedObject(<span class="keyword">id</span> object, <span class="keyword">const</span> <span class="keyword">void</span> *key)</span><br></pre></td></tr></table></figure></p>
+<p>第一个参数（object）为属性所属的类，一般使用self，第二个参数（key）为key值，和设置关联属性时使用的key一样。</p>
+<p>placeholderLabel为readOnly，重写其get方法。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  设置placeholderLabel</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  @return label</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="built_in">UILabel</span> *)placeholdLabel</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">UILabel</span> *label = objc_getAssociatedObject(<span class="keyword">self</span>, labelKey);</span><br><span class="line">    <span class="keyword">if</span> (!label) &#123;</span><br><span class="line">        label = [[<span class="built_in">UILabel</span> alloc] init];</span><br><span class="line">        label.textAlignment = <span class="built_in">NSTextAlignmentLeft</span>;</span><br><span class="line">        label.numberOfLines = <span class="number">0</span>;</span><br><span class="line">        label.textColor = [<span class="keyword">self</span>.class defaultColor];</span><br><span class="line">        objc_setAssociatedObject(<span class="keyword">self</span>, labelKey, label, OBJC_ASSOCIATION_RETAIN_NONATOMIC);</span><br><span class="line">        <span class="comment">//添加通知</span></span><br><span class="line">        [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(updateLabel) name:<span class="built_in">UITextViewTextDidChangeNotification</span> object:<span class="literal">nil</span>];</span><br><span class="line">        <span class="comment">//监听font的变化</span></span><br><span class="line">        [<span class="keyword">self</span> addObserver:<span class="keyword">self</span> forKeyPath:<span class="string">@"font"</span> options:<span class="built_in">NSKeyValueObservingOptionNew</span> context:<span class="literal">nil</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> label;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  设置默认颜色</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  @return color</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">+ (<span class="built_in">UIColor</span> *)defaultColor</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">UIColor</span> *color = <span class="literal">nil</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">dispatch_once_t</span> once_t;</span><br><span class="line">    <span class="built_in">dispatch_once</span>(&amp;once_t, ^&#123;</span><br><span class="line">       <span class="built_in">UITextField</span> *textField = [[<span class="built_in">UITextField</span> alloc] init];</span><br><span class="line">       textField.placeholder = <span class="string">@" "</span>;</span><br><span class="line">       color = [textField valueForKeyPath:<span class="string">@"_placeholderLabel.textColor"</span>];</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> color;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>创建UILabel时，设置基本属性，这里采用UITextfiled的placeholder的颜色作为默认颜色。<br>同时添加对UITextView的状态通知，UITextView主要有以下几个通知可供使用<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UIKIT_EXTERN</span> <span class="built_in">NSNotificationName</span> <span class="keyword">const</span> <span class="built_in">UITextViewTextDidBeginEditingNotification</span>;</span><br><span class="line"><span class="built_in">UIKIT_EXTERN</span> <span class="built_in">NSNotificationName</span> <span class="keyword">const</span> <span class="built_in">UITextViewTextDidChangeNotification</span>;</span><br><span class="line"><span class="built_in">UIKIT_EXTERN</span> <span class="built_in">NSNotificationName</span> <span class="keyword">const</span> <span class="built_in">UITextViewTextDidEndEditingNotification</span>;</span><br></pre></td></tr></table></figure></p>
+<p>这里使用UITextViewTextDidChangeNotification，在text改变的时候执行updateLabel方法，进行label的显示和隐藏以及其他设置。<br>对于UITextView的字体，使用KVO监听UITextView的font属性，在设置时改变placeholderLabel的font。</p>
+<p>以下是一些成员属性的set get方法，通过set方法，将text,color,attributedText赋给placeholderLabel。<br>该类别主要使用runtime创建了3个关联属性，分别为</p>
+<ul>
+<li>placeholderLabel  </li>
+<li>location             CGPoint 位置</li>
+<li>needAdJust       BOOL 判断是否需要调整</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)setPlaceholder:(<span class="built_in">NSString</span> *)placeholder</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">self</span>.placeholdLabel.text = placeholder;</span><br><span class="line">    [<span class="keyword">self</span> updateLabel];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSString</span> *)placeholder</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.placeholdLabel.text;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setPlaceholderColor:(<span class="built_in">UIColor</span> *)placeholderColor</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">self</span>.placeholdLabel.textColor = placeholderColor;</span><br><span class="line">    [<span class="keyword">self</span> updateLabel];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">UIColor</span> *)placeholderColor</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.placeholdLabel.textColor;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setAttributePlaceholder:(<span class="built_in">NSAttributedString</span> *)attributePlaceholder</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">self</span>.placeholdLabel.attributedText = attributePlaceholder;</span><br><span class="line">    [<span class="keyword">self</span> updateLabel];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSAttributedString</span> *)attributePlaceholder</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.placeholdLabel.attributedText;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setLocation:(<span class="built_in">CGPoint</span>)location</span><br><span class="line">&#123;</span><br><span class="line">    objc_setAssociatedObject(<span class="keyword">self</span>, changeLocation,<span class="built_in">NSStringFromCGPoint</span>(location), OBJC_ASSOCIATION_RETAIN_NONATOMIC);</span><br><span class="line">    [<span class="keyword">self</span> updateLabel];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">-(<span class="built_in">CGPoint</span>)location</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">CGPointFromString</span>(objc_getAssociatedObject(<span class="keyword">self</span>, changeLocation));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//是否需要调整字体</span></span><br><span class="line">- (<span class="built_in">BOOL</span>)needAdjustFont</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> [objc_getAssociatedObject(<span class="keyword">self</span>, needAdjust) boolValue ];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setNeedAdjustFont:(<span class="built_in">BOOL</span>)needAdjustFont</span><br><span class="line">&#123;</span><br><span class="line">    objc_setAssociatedObject(<span class="keyword">self</span>, needAdjust, @(needAdjustFont), OBJC_ASSOCIATION_ASSIGN);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>KVO 监听方法，判断是否是font，执行updataLabel方法。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)observeValueForKeyPath:(<span class="built_in">NSString</span> *)keyPath ofObject:(<span class="keyword">id</span>)object change:(<span class="built_in">NSDictionary</span>&lt;<span class="built_in">NSKeyValueChangeKey</span>,<span class="keyword">id</span>&gt; *)change context:(<span class="keyword">void</span> *)context</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> ([keyPath isEqualToString:<span class="string">@"font"</span>])</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">self</span>.needAdjustFont = <span class="literal">YES</span>;</span><br><span class="line">         [<span class="keyword">self</span> updateLabel];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面则是更新placeholderLabel的主要方法，调整位置，字体等。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  更新label信息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)updateLabel</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.text.length) &#123;</span><br><span class="line">        [<span class="keyword">self</span>.placeholdLabel removeFromSuperview];</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//显示label</span></span><br><span class="line">    [<span class="keyword">self</span> insertSubview:<span class="keyword">self</span>.placeholdLabel atIndex:<span class="number">0</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//是否需要更新字体（NO 采用默认字体大小）</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.needAdjustFont) &#123;</span><br><span class="line">        <span class="keyword">self</span>.placeholdLabel.font = <span class="keyword">self</span>.font;</span><br><span class="line">        <span class="keyword">self</span>.needAdjustFont = <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   <span class="built_in">CGFloat</span>  lineFragmentPadding =  <span class="keyword">self</span>.textContainer.lineFragmentPadding;  <span class="comment">//边距</span></span><br><span class="line">   <span class="built_in">UIEdgeInsets</span> contentInset = <span class="keyword">self</span>.textContainerInset;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置label frame</span></span><br><span class="line">    <span class="built_in">CGFloat</span> labelX = lineFragmentPadding + contentInset.left;</span><br><span class="line">    <span class="built_in">CGFloat</span> labelY = contentInset.top;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.location.x != <span class="number">0</span> || <span class="keyword">self</span>.location.y != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">self</span>.location.x &lt; <span class="number">0</span> || <span class="keyword">self</span>.location.x &gt; <span class="built_in">CGRectGetWidth</span>(<span class="keyword">self</span>.bounds) - lineFragmentPadding - contentInset.right || <span class="keyword">self</span>.location.y&lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 不做处理</span></span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            labelX += <span class="keyword">self</span>.location.x;</span><br><span class="line">            labelY += <span class="keyword">self</span>.location.y;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">CGFloat</span> labelW = <span class="built_in">CGRectGetWidth</span>(<span class="keyword">self</span>.bounds)  - contentInset.right - labelX;</span><br><span class="line">    <span class="built_in">CGFloat</span> labelH = [<span class="keyword">self</span>.placeholdLabel sizeThatFits:<span class="built_in">CGSizeMake</span>(labelW, MAXFLOAT)].height;</span><br><span class="line">    <span class="keyword">self</span>.placeholdLabel.frame = <span class="built_in">CGRectMake</span>(labelX, labelY, labelW, labelH);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> 对于placeholderLabel的frame设置，需要考虑几个方面：</p>
+<ul>
+<li>lineFragmentPadding  UITextView textContainer边距</li>
+<li>contentInset  输入区域偏移 UIEdgeInsets</li>
+<li>location    设置的位置</li>
+<li>labeltextHeight  placeholder的text高度</li>
+</ul>
+<blockquote>
+<p>placeholder的frame.orgin.x = 边距lineFragmentPadding + contentInset.left + location.x;<br>frame.orgin.y = contentInset.top + location.y;<br>frame.size.width = UITextView的宽度 - placeholder的frame.orgin.x - contentInset.right;<br>frame.height = placeholder.text的高度</p>
+</blockquote>
+<h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><p>以上就是关于整个UITextView_placeholder的学习解剖，学到了一些新的知识，如果大家有什么意见和建议可以给我留言，指出我的不对的地方，大家一起学习交流。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+    
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Objective-C-UI/" rel="tag"># Objective-C UI</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/category/GCD倒计时Demo/" rel="next" title="GCD倒计时Demo">
+                <i class="fa fa-chevron-left"></i> GCD倒计时Demo
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/category/环形进度条的简单实现/" rel="prev" title="环形进度条的简单实现">
+                环形进度条的简单实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MzU2MC8yMDA5OQ=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar1.jpeg" alt="Jian Wang">
+            
+              <p class="site-author-name" itemprop="name">Jian Wang</p>
+              <div class="site-description motion-element" itemprop="description">IT iOS 前端 nodejs</div>
+          </div>
+          
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJSummer" title="GitHub &rarr; https://github.com/WangJSummer" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:jianw1021@163.com" title="E-Mail &rarr; mailto:jianw1021@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概要"><span class="nav-number">1.1.</span> <span class="nav-text">概要</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#效果图"><span class="nav-number">1.2.</span> <span class="nav-text">效果图</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码解析"><span class="nav-number">2.</span> <span class="nav-text">代码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#h-解析"><span class="nav-number">2.1.</span> <span class="nav-text">.h 解析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#m-解析"><span class="nav-number">2.2.</span> <span class="nav-text">.m 解析</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结语"><span class="nav-number">3.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jian Wang</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">40k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    
+    <span title="站点阅读时长">36 分钟</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/reading_progress/reading_progress.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: 'category/UITextView-placeholder的实现和解析/'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?bd2294fafea3389ee458f1d9be5a2157"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":250,"height":415},"mobile":{"show":true},"react":{"opacityDefault":0.7,"opacityOnHover":0.2}});</script></body>
+</html>
