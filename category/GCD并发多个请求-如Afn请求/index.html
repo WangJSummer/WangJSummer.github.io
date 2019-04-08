@@ -114,7 +114,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2203462-06856643e1e2d8af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2203462-d6f3ef1e540682e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2203462-8710d792e3947f96.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-04-04T08:39:36.000Z">
+<meta property="og:updated_time" content="2019-04-08T01:47:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GCD并发多个请求(如Afn请求)">
 <meta name="twitter:description" content="本篇笔记主要针对的场景问题：需要并发执行多个AFNetworking请求，并且在多个请求成功返回结果之后，根据它们的结果来执行下一个任务。 一 dispatch_group 介绍1.1 基本概念：将追加到队列的一系列任务放进组中，可用于监听任务完成情况。 1.2 常用方法：  dispatch_group_create() 创建一个调度任务组。 disaptch_group_async (disp">
@@ -399,12 +399,24 @@
                 
               
 
-              <time title="创建时间：2019-04-04 15:34:15 / 修改时间：16:39:36" itemprop="dateCreated datePublished" datetime="2019-04-04T15:34:15+08:00">2019-04-04</time>
+              <time title="创建时间：2019-04-04 15:34:15" itemprop="dateCreated datePublished" datetime="2019-04-04T15:34:15+08:00">2019-04-04</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-08 09:47:05" itemprop="dateModified" datetime="2019-04-08T09:47:05+08:00">2019-04-08</time>
               
             
           </span>
@@ -506,7 +518,7 @@
 </ul>
 <h4 id="二-实际使用场景（并发执行第多个任务）"><a href="#二-实际使用场景（并发执行第多个任务）" class="headerlink" title="二 实际使用场景（并发执行第多个任务）"></a>二 实际使用场景（并发执行第多个任务）</h4><h5 id="2-1-并发执行非异步任务"><a href="#2-1-并发执行非异步任务" class="headerlink" title="2.1 并发执行非异步任务"></a>2.1 并发执行非异步任务</h5><p><strong>需求描述</strong>：并发执行任务1和任务2，当它们执行结束后，执行任务3。</p>
 <p><strong>分析</strong>：使用dispatch_group_async搭配dispatch_group_notify即可实现并行执行任务1和任务2 ，并且监听两个任务执行完毕之后，再执行任务3。</p>
-<h6 id="2-1-1-代码解析"><a href="#2-1-1-代码解析" class="headerlink" title="2.1.1 代码解析"></a>2.1.1 代码解析</h6><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (void)asyncWithGroup &#123;</span><br><span class="line">    <span class="comment">//创建group</span></span><br><span class="line">    dispatch_group_t group = dispatch_group_create();</span><br><span class="line">    <span class="comment">//全局并行队列</span></span><br><span class="line">    dispatch_queue_t globalQueue = dispatch_get_global_queue(<span class="type">DISPATCH_QUEUE_PRIORITY_DEFAULT</span>, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行任务--1--"</span>);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行结束--1--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行任务--2--"</span>);</span><br><span class="line">        sleep(<span class="number">3</span>);</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"执行结束--2--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//监听组中任务全部执行完毕</span></span><br><span class="line">    dispatch_group_notify(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="type">NSLog</span>(@<span class="string">"开始执行任务--3--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="2-1-1-代码解析"><a href="#2-1-1-代码解析" class="headerlink" title="2.1.1 代码解析"></a>2.1.1 代码解析</h6><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)asyncWithGroup &#123;</span><br><span class="line">    <span class="comment">//创建group</span></span><br><span class="line">    dispatch_group_t group = dispatch_group_create();</span><br><span class="line">    <span class="comment">//全局并行队列</span></span><br><span class="line">    <span class="built_in">dispatch_queue_t</span> globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"执行任务--1--"</span>);</span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"执行结束--1--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    dispatch_group_async(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"执行任务--2--"</span>);</span><br><span class="line">        sleep(<span class="number">3</span>);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"执行结束--2--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//监听组中任务全部执行完毕</span></span><br><span class="line">    dispatch_group_notify(group, globalQueue, ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"开始执行任务--3--"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>打印情况如下：<br><img src="https://upload-images.jianshu.io/upload_images/2203462-06856643e1e2d8af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>可见任务1和任务2是并发执行，并且在他们执行完毕之后，才执行任务3。</p>
 <h5 id="2-2-并发执行异步任务"><a href="#2-2-并发执行异步任务" class="headerlink" title="2.2 并发执行异步任务"></a>2.2 并发执行异步任务</h5><p><strong>需求描述</strong>：并行执行任务1和任务2，任务1和任务2这里都是使用AFNnetworking发送请求，等待任务1和任务2请求完成（成功或失败）之后，再继续执行任务3。</p>
 <p><strong>分析</strong>：</p>
