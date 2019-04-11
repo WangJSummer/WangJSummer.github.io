@@ -114,7 +114,7 @@
 <meta property="og:image" content="https://wjsummer.top/images/pasted-1.png">
 <meta property="og:image" content="https://wjsummer.top/images/pasted-2.png">
 <meta property="og:image" content="https://wjsummer.top/images/pasted-3.png">
-<meta property="og:updated_time" content="2019-04-11T09:16:36.000Z">
+<meta property="og:updated_time" content="2019-04-11T09:19:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TCP三次握手和四次挥手">
 <meta name="twitter:description" content="TCP数据段解析报文在TCP连接中传输，会被分割成多个TCP段，使用IP分组承载，从一个IP地址传输到另外一个IP地址。IP分组主要组成:  IP首部 主要包含了源IP地址和目标IP地址   IP数据部分 TCP首部 TCP数据部分     这要主要对TCP首部说明一下 如下图所示：   序号seq: sequence number 占用3个字节，TCP连接中传送的字节流中每个自己都按照顺序编号，">
@@ -399,7 +399,7 @@
                 
               
 
-              <time title="创建时间：2019-04-11 14:56:03 / 修改时间：17:16:36" itemprop="dateCreated datePublished" datetime="2019-04-11T14:56:03+08:00">2019-04-11</time>
+              <time title="创建时间：2019-04-11 14:56:03 / 修改时间：17:19:25" itemprop="dateCreated datePublished" datetime="2019-04-11T14:56:03+08:00">2019-04-11</time>
             
 
             
@@ -600,7 +600,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="为什么最后客户端最后需要等待2MSL？"><a href="#为什么最后客户端最后需要等待2MSL？" class="headerlink" title="为什么最后客户端最后需要等待2MSL？"></a>为什么最后客户端最后需要等待2MSL？</h4><p>MSL（Maximum Segment Lifetime），TCP允许不同的实现可以设置不同的MSL值。</p>
+<h4 id="为什么最后客户端最后需要等待2MSL？"><a href="#为什么最后客户端最后需要等待2MSL？" class="headerlink" title="为什么最后客户端最后需要等待2MSL？"></a>为什么最后客户端最后需要等待2MSL？</h4><p>MSL（Maximum Segment Lifetime），意为最大报文段生存时间，TCP允许不同的实现可以设置不同的MSL值。</p>
 <blockquote>
 <p>因为在最后客户端发出确认后，报文传送到服务端需要时间，而且也可能丢失。<br>如果丢失的话，那么服务端在一定时间内没有收到客户端的确认回应，可能就判断客户端没有收到我的请求，会重新向客户端发送一次，此时客户端接收到之后，会重启2MSL计时器，然后再给服务端发送确认回应。</p>
 </blockquote>
@@ -610,6 +610,7 @@
 <h4 id="如果已经建立连接的情况下，但是客户端出现了故障怎么办？"><a href="#如果已经建立连接的情况下，但是客户端出现了故障怎么办？" class="headerlink" title="如果已经建立连接的情况下，但是客户端出现了故障怎么办？"></a>如果已经建立连接的情况下，但是客户端出现了故障怎么办？</h4><blockquote>
 <p>TCP设有一个保活计时器。当客户端出现故障之后，服务端每收到一次客户端的请求就会重新复位计时器。通常为2个小时，如果没有接收到任何数据，服务器就会发送一个探测报文段，以后每隔75秒发送一次。若连续发送了10次都没有反应，则认为客户端出现了问题，接着 服务器端关闭连接。</p>
 </blockquote>
+<h3 id="end"><a href="#end" class="headerlink" title="end"></a>end</h3><p>对于网络充满了好奇，慢慢的学习，慢慢的深入，发现越来越有趣！</p>
 
       
     </div>
@@ -861,7 +862,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP数据段解析"><span class="nav-number">1.</span> <span class="nav-text">TCP数据段解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP建立连接的三次握手"><span class="nav-number">2.</span> <span class="nav-text">TCP建立连接的三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么客户端最后还要发送一次确认？"><span class="nav-number">2.1.</span> <span class="nav-text">为什么客户端最后还要发送一次确认？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP断开连接的四次挥手"><span class="nav-number">3.</span> <span class="nav-text">TCP断开连接的四次挥手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么最后客户端最后需要等待2MSL？"><span class="nav-number">3.1.</span> <span class="nav-text">为什么最后客户端最后需要等待2MSL？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么连接只需要三次，但是断开需要四次？"><span class="nav-number">3.2.</span> <span class="nav-text">为什么连接只需要三次，但是断开需要四次？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果已经建立连接的情况下，但是客户端出现了故障怎么办？"><span class="nav-number">3.3.</span> <span class="nav-text">如果已经建立连接的情况下，但是客户端出现了故障怎么办？</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP数据段解析"><span class="nav-number">1.</span> <span class="nav-text">TCP数据段解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP建立连接的三次握手"><span class="nav-number">2.</span> <span class="nav-text">TCP建立连接的三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么客户端最后还要发送一次确认？"><span class="nav-number">2.1.</span> <span class="nav-text">为什么客户端最后还要发送一次确认？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP断开连接的四次挥手"><span class="nav-number">3.</span> <span class="nav-text">TCP断开连接的四次挥手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么最后客户端最后需要等待2MSL？"><span class="nav-number">3.1.</span> <span class="nav-text">为什么最后客户端最后需要等待2MSL？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么连接只需要三次，但是断开需要四次？"><span class="nav-number">3.2.</span> <span class="nav-text">为什么连接只需要三次，但是断开需要四次？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果已经建立连接的情况下，但是客户端出现了故障怎么办？"><span class="nav-number">3.3.</span> <span class="nav-text">如果已经建立连接的情况下，但是客户端出现了故障怎么办？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#end"><span class="nav-number">4.</span> <span class="nav-text">end</span></a></li></ol></div>
             
 
           </div>
