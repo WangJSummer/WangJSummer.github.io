@@ -1,13 +1,16 @@
----
 title: UICollectionViewLayout的简单使用(简单瀑布流)
 author: Jian Wang
-date: 2019-04-04 16:41:49
-tags: [Objective-C,UI]
+tags:
+  - Objective-C
+  - UI
 categories: iOS
+date: 2019-04-04 16:41:49
 ---
+#### 前言
 对于需要使用到列表的页面,一般是使用UITableView或者是UICollectionView来实现。一直以来都是直接使用UICollectionViewFlowLayout,基本都能实现需求功能，但是对于直接利用UICollectionViewLayout来自定义view的layout没怎么使用过，这里查了蛮多资料自己写了demo，仅供日后参考了。
 
-###UICollectionViewLayoutAttrubutes
+#### 主要类型
+##### UICollectionViewLayoutAttrubutes
 一个很重要的类主要记录了cells，supplementaryViews，decorationviews的位置，size，透明度，层级等
 - @property (nonatomic) CGRect frame; frame信息
 - @property (nonatomic) CGPoint center; 中心点
@@ -23,7 +26,7 @@ categories: iOS
 - @property (nonatomic, readonly, nullable) NSString *representedElementKind; 响应类型(区分cell,supple,decaration)
 那么当UICollectionView获取布局的时候会通过访问每个位置的部件通过其attribute来询问其布局信息
 
-###自定义一个UICollectionViewLayout
+自定义一个UICollectionViewLayout
 继承自UICollectionViewLayout类，然后一般需要重载下列方法：
 - -(void)prepareLayout；
     每次请求布局时候都会自动调用，可以在这里修改一些必要的layout的结构和初始需要的参数等
@@ -38,12 +41,14 @@ categories: iOS
 - -(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds；
   当边界发生改变时，是否应该刷新布局。如果YES则在边界变化（一般是scroll到其他地方）时，将重新计算需要的布局信息。
   
-   ##demo 
+#### demo展示 
  [demo地址](git@github.com:w467364316/waterfallDemo.git)
 ![Simulator Screen Shot 2016年10月13日 上午10.52.12.png](http://upload-images.jianshu.io/upload_images/2203462-702a9fe47adaab48.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 使用了一组图片和一个json文件(如果添加过后发现解析为空，在target ->Build Phase - >copy Bundle Resource添加需要的json文件) 正在减肥用的都是减肥励志的哈哈
 
-####PickModel
+
+#### 代码解析
+##### PickModel
 使用到的model
 .h
 ```
@@ -90,7 +95,7 @@ categories: iOS
 通过修改定义的列数
 ![Pch文件.png](http://upload-images.jianshu.io/upload_images/2203462-21b4b613e52fd128.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-####ViewController
+##### ViewController
 .m文件
 ```
 #import "BaseViewController.h"
@@ -174,7 +179,7 @@ categories: iOS
     return cell;
 }
 ```
-####PureLayout
+##### PureLayout
 .h文件，这里简单的直接传递了数据源
 ```
 @interface PureLayout : UICollectionViewLayout
@@ -274,10 +279,11 @@ static CGFloat verticalSpace = 15;//垂直间隔
     return YES;
 }
 ```
+#### 结语
 只是一个简单的额瀑布流demo，还有蛮多地方需要优化，这里仅仅写下一些基本思路。
 
 官方给出的两个demo很有学习价值，CircleLayout以及LinLayout，在我之前的给出的参考链接里面都是可以直接下载的,对于与文章中的CircleLayout用法，insert和delete方法已经被appearing和disappearing取代了，参考的githubdemo被我fork了一份，可以进行下载学习 https://github.com/w467364316/CircleLayout.git
 
 参考资料地址：
 http://blog.csdn.net/majiakun1/article/details/17204921
- http://www.cnblogs.com/wangyingblock/p/5627448.html  
+ http://www.cnblogs.com/wangyingblock/p/5627448.html

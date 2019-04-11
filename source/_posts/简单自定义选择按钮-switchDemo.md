@@ -1,17 +1,21 @@
 title: 简单自定义选择按钮(switchDemo)
 author: Jian Wang
 date: 2019-04-04 16:41:23
-tags:
+tags: [Objective-C,UI]
+categories: iOS
 ---
+#### 简介
 虽然系统的UISwitch效果已经很好了,附带的动画效果也是很好的,但是在实际开发中UI和程序员对头(产品经理)经常会要求按照项目的整体效果使用其他的图片或者背景来代替,这里仅在项目中做了一个简单的自定义switch.
 
-#####demo图样
+#### demo图样
 ![switchDemo.png](http://upload-images.jianshu.io/upload_images/2203462-95c34978f9e5af4e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 主要是使用自定义UIView,利用背景图片的切换,和按钮图片的x的位置开实现.
 
 这里把demo放上,方便以后查看 : [demo地址](https://github.com/w467364316/WJSwitchButton.git)
-WJSwitch.h
+
+#### 代码解析
+##### WJSwitch.h
 ```
 #import <UIKit/UIKit.h>
 
@@ -89,7 +93,7 @@ WJSwitch.m
     [self addSubview:self.btnView];
 }
 ```
-触摸方法
+##### 触摸方法
 ```
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
 
@@ -151,7 +155,7 @@ WJSwitch.m
     } completion:nil];
 }
 ```
-viewController.m
+##### viewController.m
 ```
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -175,5 +179,6 @@ viewController.m
     NSLog(@"%ld",tag);
 }
 ```
+#### 结语
 按钮的位置移动可以使用CAAnimation做一些简单的动画过度,或者直接使用UIView的封装方法实现一些效果来实现,关于动画的一些基本应用,在文集中有转载一篇写的特好的文章讲动画的!!建议自己可以跟着敲一次!!
 PS:能用自带插件最好劝说需求用吧,毕竟系统的很强大!  ~~不过我和我们需求谈判失败了...
