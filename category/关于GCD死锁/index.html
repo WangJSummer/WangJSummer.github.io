@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="问题有很多文章经常会说“在主线程使用了sync函数就会造成死锁”或者是“在主线程使用了sync函数，同时将任务传入串行队列就会死锁”。那么这些问题是否正确呢？答：不正确！！ GCD死锁的原因是队列阻塞而不是线程阻塞。  本文的分析基于已经了解了GCD的基本知识。  基本知识介绍串行队列和并行队列参照下图：  上图表明了几点：  串行队列和并行队列都是先进先出，区别在于其队列中任务的执行方式。 串行">
+<meta name="keywords" content="Objective-C,GCD">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于GCD死锁">
+<meta property="og:url" content="https://wjsummer.top/category/关于GCD死锁/index.html">
+<meta property="og:site_name" content="MrSummerの小窝">
+<meta property="og:description" content="问题有很多文章经常会说“在主线程使用了sync函数就会造成死锁”或者是“在主线程使用了sync函数，同时将任务传入串行队列就会死锁”。那么这些问题是否正确呢？答：不正确！！ GCD死锁的原因是队列阻塞而不是线程阻塞。  本文的分析基于已经了解了GCD的基本知识。  基本知识介绍串行队列和并行队列参照下图：  上图表明了几点：  串行队列和并行队列都是先进先出，区别在于其队列中任务的执行方式。 串行">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-9.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-16.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-17.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-10.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-11.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-18.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-19.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-14.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-15.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-20.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-21.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-23.png">
+<meta property="og:image" content="https://wjsummer.top/images/pasted-25.png">
+<meta property="og:updated_time" content="2019-04-28T05:14:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于GCD死锁">
+<meta name="twitter:description" content="问题有很多文章经常会说“在主线程使用了sync函数就会造成死锁”或者是“在主线程使用了sync函数，同时将任务传入串行队列就会死锁”。那么这些问题是否正确呢？答：不正确！！ GCD死锁的原因是队列阻塞而不是线程阻塞。  本文的分析基于已经了解了GCD的基本知识。  基本知识介绍串行队列和并行队列参照下图：  上图表明了几点：  串行队列和并行队列都是先进先出，区别在于其队列中任务的执行方式。 串行">
+<meta name="twitter:image" content="https://wjsummer.top/images/pasted-9.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="MrSummerの小窝" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://wjsummer.top/category/关于GCD死锁/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>关于GCD死锁 | MrSummerの小窝</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MrSummerの小窝</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://wjsummer.top/category/关于GCD死锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jian Wang">
+      <meta itemprop="description" content="IT iOS 前端 nodejs">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MrSummerの小窝">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">关于GCD死锁
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-04-25 16:58:10" itemprop="dateCreated datePublished" datetime="2019-04-25T16:58:10+08:00">2019-04-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-04-28 13:14:28" itemprop="dateModified" datetime="2019-04-28T13:14:28+08:00">2019-04-28</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">3.9k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">4 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>有很多文章经常会说“在主线程使用了sync函数就会造成死锁”或者是“在主线程使用了sync函数，同时将任务传入串行队列就会死锁”。那么这些问题是否正确呢？<br>答：不正确！！ <strong>GCD死锁的原因是队列阻塞而不是线程阻塞。</strong></p>
+<blockquote>
+<p>本文的分析基于已经了解了GCD的基本知识。</p>
+</blockquote>
+<h3 id="基本知识介绍"><a href="#基本知识介绍" class="headerlink" title="基本知识介绍"></a>基本知识介绍</h3><h4 id="串行队列和并行队列"><a href="#串行队列和并行队列" class="headerlink" title="串行队列和并行队列"></a>串行队列和并行队列</h4><p>参照下图：</p>
+<p><img src="/images/pasted-9.png" alt="串行队列和并行队列"></p>
+<p>上图表明了几点：</p>
+<ul>
+<li>串行队列和并行队列都是先进先出，区别在于其队列中任务的执行方式。</li>
+<li>串行队列中，下一个任务会等待上一个任务结束后才会执行。</li>
+<li>并行队列中，不会等待上一个任务完全执行结束，就会立即调用执行下一个任务。</li>
+</ul>
+<p>队列中的任务最终的执行方式，比如多条线程中并发执行，还是跟我们使用同步函数还是异步函数相关。</p>
+<h4 id="同步函数和异步函数"><a href="#同步函数和异步函数" class="headerlink" title="同步函数和异步函数"></a>同步函数和异步函数</h4><h5 id="dispatch-sync函数："><a href="#dispatch-sync函数：" class="headerlink" title="dispatch_sync函数："></a>dispatch_sync函数：</h5><ul>
+<li>意味着”同步“，将指定的block”同步“的追加到指定的Dispatch_queue中。</li>
+<li>再追加的block执行结束之前，dispatch_sync函数会一直等待。</li>
+<li>”等待“也就意味着当前线程停止。如下图所示：</li>
+</ul>
+<p><img src="/images/pasted-16.png" alt="upload successful"></p>
+<h5 id="dispatch-async函数："><a href="#dispatch-async函数：" class="headerlink" title="dispatch_async函数："></a>dispatch_async函数：</h5><ul>
+<li>意味着”非同步“，将指定的block非同步的添加到指定的Dispatch_queue中。</li>
+<li>dispatch_async不会等待追加的block执行结束。如下图所示：</li>
+</ul>
+<p><img src="/images/pasted-17.png" alt="upload successful"></p>
+<h3 id="经典GCD死锁案例和解析"><a href="#经典GCD死锁案例和解析" class="headerlink" title="经典GCD死锁案例和解析"></a>经典GCD死锁案例和解析</h3><h4 id="GCD主队列死锁"><a href="#GCD主队列死锁" class="headerlink" title="GCD主队列死锁"></a>GCD主队列死锁</h4><p>经典案例如下图所示：</p>
+<p><img src="/images/pasted-10.png" alt="upload successful"><br>我们发现仅仅执行打印了“开始执行”，然后报错，代码中使用了sync函数往主队列中追加了一个block，然后在主线程中执行。</p>
+<h5 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h5><p>上述代码中，表示的主队列中任务情况如下图所示：</p>
+<p><img src="/images/pasted-11.png" alt="upload successful"><br>按照主线程中执行的顺序进行梳理：</p>
+<ol>
+<li>主线程首先从主队列中提取任务viewDidLoad，并开始执行。</li>
+<li>代码执行第一行，打印“开始执行–main thread”。</li>
+<li>代码执行到第二行，使用dispatch_sync函数同步的往主队列中添加一个block，此时主队列中有了两个任务。</li>
+<li>基于dispatch_sync的特点，此时该同步函数处在等待状态，等待它添加的block处理执行完毕。</li>
+<li>程序出现崩溃。</li>
+</ol>
+<p>并没有打印block中的内容，那么也就是<strong>block没有执行。</strong>   为什么不会执行呢？</p>
+<ol>
+<li>dispatch_sync在它追加进指定队列的block处理执行结束前处于等待状态。</li>
+<li>此时dispatch_sync函数将block任务追加进了主队列中，主队列是串行队列，那么此时主队列中有了两个任务viewDidLoad和追加的block任务。</li>
+<li>串行队列中block任务要执行的话，那么就需要等待它前面的viewDidLoad任务执行结束。</li>
+<li>而viewDidLoad任务中，此时dispatch_sync函数处于等待状态，需要等到dispatch_sync函数返回后才能继续往下执行。</li>
+<li>由此就形成了一个死锁。<ul>
+<li>viewDidLoad等待dispatch_sync函数返回。</li>
+<li>dispatch_sync函数等待block执行结束。</li>
+<li>而block任务等待viewDidLoad执行结束</li>
+</ul>
+</li>
+</ol>
+<p>如下图所示：</p>
+<p><img src="/images/pasted-18.png" alt="upload successful"></p>
+<h3 id="死锁解决方案"><a href="#死锁解决方案" class="headerlink" title="死锁解决方案"></a>死锁解决方案</h3><p>从上面的分析中，我们可以得出造成死锁的关键点：</p>
+<ol>
+<li>dispatch_sync函数阻塞了当前线程</li>
+<li>串行队列中两个任务形成队列阻塞。</li>
+</ol>
+<h4 id="针对sync函数阻塞了当前线程"><a href="#针对sync函数阻塞了当前线程" class="headerlink" title="针对sync函数阻塞了当前线程"></a>针对sync函数阻塞了当前线程</h4><p>dispatch_sync函数”同步“的添加block任务到队列，阻塞线程。那么我们使用dispatch_async函数”非同步“的将block任务添加进队列，不阻塞线程就可以解决。<br>如下图所示：</p>
+<p><img src="/images/pasted-19.png" alt="upload successful"><br>可以发现没有报错，打印顺序为”开始执行“-&gt;”结束执行“-&gt;”执行中”。</p>
+<h5 id="解析-1"><a href="#解析-1" class="headerlink" title="解析"></a>解析</h5><p>按照执行流程进行梳理：</p>
+<ol>
+<li>主线程从主队列中取出viewDidLoad任务开始执行。</li>
+<li>打印”开始执行–main thread“。</li>
+<li>dispatch_async异步将block任务追加到主队列中，并且不会等待block任务执行结束。</li>
+<li>打印”结束执行–main thread“。</li>
+<li>此时追加进主队列中的block任务因为viewDidLoad任务结束，开始执行并打印”执行中–main thread“。</li>
+</ol>
+<h4 id="针对串行队列中的队列阻塞"><a href="#针对串行队列中的队列阻塞" class="headerlink" title="针对串行队列中的队列阻塞"></a>针对串行队列中的队列阻塞</h4><p>上述造成死锁的主队列中，viewDidLoad因为dispatch_sync函数处于等待状态而不能执行结束，而block又需要等待viewDidLoad执行结束。那么有几种方法可以解决：</p>
+<ol>
+<li>自行创建一个队列，将block追加新建的队列中，这样两个任务就不会造成队列阻塞了。  </li>
+<li>将多个任务添加进并发队列中，这样任务执行就不用等待上一个任务执行结束了。</li>
+</ol>
+<h5 id="新建队列"><a href="#新建队列" class="headerlink" title="新建队列"></a>新建队列</h5><p>如下图所示：<br><img src="/images/pasted-14.png" alt="upload successful"><br>创建了一个自定义串行队列”com.wjsuumer.top.test”（以下简称test队列）。然后使用dispatch_sync函数将block任务添加进该队列。运行后控制台依次打印 “开始执行”-&gt;”执行中”-&gt;“结束执行”。</p>
+<h6 id="解析-2"><a href="#解析-2" class="headerlink" title="解析"></a>解析</h6><p>对于自定义的串行队列，添加block任务后，那么此时两个队列的情况如下图所示：</p>
+<p><img src="/images/pasted-15.png" alt="upload successful"><br>按照执行流程进行梳理：</p>
+<ul>
+<li>主线程从主队列取出任务viewDidLoad开始执行。</li>
+<li>执行第一行，打印”开始执行–main thread“。</li>
+<li>执行第二行，创建了一个test队列。</li>
+<li>执行第三行，使用dispatch_sync函数往test队列中添加一个block任务，此时dispatch_sync处于等待状态。</li>
+<li>主线程从test队列中取出block任务执行，打印”执行中–main thread“。</li>
+<li>此时block执行结束，dispatch_sync函数返回，继续往下执行。</li>
+<li>执行最后一行代码，打印”结束执行–main thread“。</li>
+</ul>
+<p>相比之前直接在主队列中添加block任务，从test队列中取出block任务时，因为block任务就在test队列的对头，不需要等待其他任务就可以立即调用。</p>
+<p><strong>注意：这个例子中我们只需要追加一个block任务，所以创建的队列无论是串行队列还是并行队列都可以，因为都是将block添加进了一个新的队列中
+</strong></p>
+<h5 id="使用并发队列"><a href="#使用并发队列" class="headerlink" title="使用并发队列"></a>使用并发队列</h5><p>对于上述的新建队列的方法，如果新建的是串行队列，那么针对下列情况结果会是怎样的呢？</p>
+<p><img src="/images/pasted-20.png" alt="upload successful"></p>
+<p>运行会发现依然会发生崩溃，自建test队列中发生死锁，test队列中有block1任务和block2任务，block1任务执行结束需要block2任务指定，block2任务指定又因为test队列为串行队列，所以需要等待block1任务执行完毕，从而造成死锁。<br>如下图所示：</p>
+<p><img src="/images/pasted-21.png" alt="upload successful"><br>那么此时可能会想到针对block2任务，再新建一个队列，然后将block2追加到新的队列中去，这样就不会造成死锁了。这样自然可以，但是使用并发队列更加的简单。<br>使用并发队列如下图所示：</p>
+<p><img src="/images/pasted-23.png" alt="upload successful"></p>
+<h6 id="解析-3"><a href="#解析-3" class="headerlink" title="解析"></a>解析</h6><p>我们将block1和block2追加进了新建的全局并发队列中，由于并发队列中的任务并发执行，不需要等待上一个任务执行结束，也就不会出现死锁的情况。</p>
+<h3 id="练习案例分析"><a href="#练习案例分析" class="headerlink" title="练习案例分析"></a>练习案例分析</h3><p>如下代码所示，是否会发生死锁的情况？为什么？如果死锁了应该如何解决？<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"开始执行--%@"</span>,[<span class="built_in">NSThread</span> currentThread]);</span><br><span class="line">    <span class="comment">//使用async往主队列中添加block1任务</span></span><br><span class="line">    <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"执行中--1--%@"</span>,[<span class="built_in">NSThread</span> currentThread]);</span><br><span class="line">        <span class="comment">//使用sync函数往主队列中添加block2任务。</span></span><br><span class="line">        <span class="built_in">dispatch_sync</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"执行中--2--%@"</span>,[<span class="built_in">NSThread</span> currentThread]);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"结束执行--%@"</span>,[<span class="built_in">NSThread</span> currentThread]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行这段代码会出现崩溃，其中发生了死锁。</p>
+<p><img src="/images/pasted-25.png" alt="upload successful"><br>按照执行顺序进行梳理：</p>
+<ol>
+<li>主线程从主队列中取出viewDidLoad任务开始执行，打印<strong>“开始执行–main thread”</strong>。</li>
+<li>dispatch_async函数异步将block1任务添加进主队列，同时不会处于等待状态。</li>
+<li>打印<strong>“结束执行–main thread”</strong>。</li>
+<li>此时viewDidLoad执行结束，开始执行添加的block1任务，打印<strong>“执行中–1–main thread”</strong>。</li>
+<li>block1中使用dispatch_sync函数添加block2任务到主队列中，并且处于等待状态，等待block2任务执行完毕。</li>
+<li>block2在主队列中，那么需要等待它前面的block1任务执行完毕。此时形成了死锁，程序崩溃。</li>
+</ol>
+<p>那么我们为了解决这样的死锁问题，可以使用dispatch_sync函数“非同步”来追加block2任务。</p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>这篇笔记中，主要是讲解了dispatch_sync函数和diapatch_async将任务追加到串行队列中引发的死锁问题以及如何去解决。<br>其中没有讲述过使用dispatch_async+并行队列的形式，这种情况下会开启子线程对任务进行处理，关于GCD多线程编程在其他笔记中详述。<br>对于GCD的使用，还是需要理解其原理机制，才能够更好的配合实现性能的优化，避免出现死锁之类的错误。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+    
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+          
+            <a href="/tags/GCD/" rel="tag"># GCD</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/category/HTTPS详解/" rel="next" title="HTTPS详解">
+                <i class="fa fa-chevron-left"></i> HTTPS详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MzU2MC8yMDA5OQ=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar1.jpeg" alt="Jian Wang">
+            
+              <p class="site-author-name" itemprop="name">Jian Wang</p>
+              <div class="site-description motion-element" itemprop="description">IT iOS 前端 nodejs</div>
+          </div>
+          
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJSummer" title="GitHub &rarr; https://github.com/WangJSummer" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:jianw1021@163.com" title="E-Mail &rarr; mailto:jianw1021@163.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本知识介绍"><span class="nav-number">2.</span> <span class="nav-text">基本知识介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#串行队列和并行队列"><span class="nav-number">2.1.</span> <span class="nav-text">串行队列和并行队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#同步函数和异步函数"><span class="nav-number">2.2.</span> <span class="nav-text">同步函数和异步函数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#dispatch-sync函数："><span class="nav-number">2.2.1.</span> <span class="nav-text">dispatch_sync函数：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#dispatch-async函数："><span class="nav-number">2.2.2.</span> <span class="nav-text">dispatch_async函数：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#经典GCD死锁案例和解析"><span class="nav-number">3.</span> <span class="nav-text">经典GCD死锁案例和解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GCD主队列死锁"><span class="nav-number">3.1.</span> <span class="nav-text">GCD主队列死锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#解析"><span class="nav-number">3.1.1.</span> <span class="nav-text">解析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#死锁解决方案"><span class="nav-number">4.</span> <span class="nav-text">死锁解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#针对sync函数阻塞了当前线程"><span class="nav-number">4.1.</span> <span class="nav-text">针对sync函数阻塞了当前线程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#解析-1"><span class="nav-number">4.1.1.</span> <span class="nav-text">解析</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#针对串行队列中的队列阻塞"><span class="nav-number">4.2.</span> <span class="nav-text">针对串行队列中的队列阻塞</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#新建队列"><span class="nav-number">4.2.1.</span> <span class="nav-text">新建队列</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#解析-2"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">解析</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用并发队列"><span class="nav-number">4.2.2.</span> <span class="nav-text">使用并发队列</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#解析-3"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">解析</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#练习案例分析"><span class="nav-number">5.</span> <span class="nav-text">练习案例分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jian Wang</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点总字数：</span>
+    
+    <span title="站点总字数">51k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    
+    <span title="站点阅读时长">46 分钟</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/reading_progress/reading_progress.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    <script>
+  window.livereOptions = {
+    refer: 'category/关于GCD死锁/'
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+</script>
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?bd2294fafea3389ee458f1d9be5a2157"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":250,"height":415},"mobile":{"show":true},"react":{"opacityDefault":0.7,"opacityOnHover":0.2}});</script></body>
+</html>
